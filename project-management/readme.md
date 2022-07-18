@@ -1,6 +1,6 @@
 # Project Management
 
-Holder text to make "project management" folder trackable for git.
+Holder file to make "project management" folder trackable for git.
 
 - client + api + pm(project management) folder (git)
 
