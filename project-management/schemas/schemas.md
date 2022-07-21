@@ -7,22 +7,21 @@
 ## Invoices:
 - id number
 - clientId number
-- laborId number
-- salesId number
-- job_completed boolean
 - isInvoiced boolean
 
 ## Labor:
 - id number
+- description string
 - clientId number
-- transactionId number
+- invoiceId number
 - hours_worked number
 - hourly_rate number
 
 ## Sales:
 - id number
+- description string
 - clientId number
-- transactionId number
+- invoiceId number
 - units number
 - unit_cost number
 
