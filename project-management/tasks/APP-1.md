@@ -7,6 +7,6 @@ Figure out what entities will be needed and what their properties and relationsh
 
 ---
 #### Subtasks:
-- [ ] Determine entities
-- [ ] Document entity schemas
-- [ ] Document entity relationships
+- [x] Determine entities
+- [x] Document entity schemas
+- [x] Document entity relationships
