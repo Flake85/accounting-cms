@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  cms_db:
+    hostname: cms_db
+    container_name: cms_db
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_HOST=cms_db
+      - POSTGRES_USER=cms
+      - POSTGRES_PASSWORD=cms
+      - POSTGRES_DB=cms
+    ports:
+      - '5432:5432'
+    volumes: 
+      - cms_db:/var/lib/postgresql/data
+volumes:
+  cms_db:
+    driver: local
