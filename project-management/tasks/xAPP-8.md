@@ -7,5 +7,5 @@ Setup basic server and connect to database
 
 ---
 #### Subtasks:
-- [ ] setup basic server
-- [ ] connect server to database
+- [x] setup basic server
+- [x] connect server to database

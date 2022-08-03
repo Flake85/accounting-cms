@@ -7,7 +7,7 @@ Set up Expense managing system
 
 ---
 #### Subtasks:
-- [ ] setup database for Expenses
+- [x] setup database for Expenses
 - [ ] create endpoints on the server to CRUD Expenses
 - [ ] create page with form to add Expenses to database
 - [ ] create page with list of all the Expenses || single Expense
