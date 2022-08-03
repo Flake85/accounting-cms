@@ -27,4 +27,16 @@ var routes = Routes{
 		"/clients",
 		handlers.CreateClient,
 	},
+	Route{
+		"GetClient",
+		"GET",
+		"/clients/{id}",
+		handlers.GetClient,
+	},
+	Route{
+		"UpdateClient",
+		"PUT",
+		"/clients/{id}",
+		handlers.UpdateClient,
+	},
 }
