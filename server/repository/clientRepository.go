@@ -39,3 +39,10 @@ func UpdateClient(client *model.Client) error {
 	}
 	return nil
 }
+
+func DeleteClient(client *model.Client) error {
+	if DB.Delete(client).Error != nil {
+		return fmt.Errorf("cannot delete client: %w", DB.Error)
+	}
+	return nil
+}
