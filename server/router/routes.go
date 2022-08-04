@@ -70,9 +70,39 @@ var routes = Routes{
 		handlers.UpdateInvoice,
 	},
 	Route{
-		"DeleteClient",
+		"DeleteInvoice",
 		"DELETE",
 		"/invoices/{id}",
 		handlers.DeleteInvoice,
+	},
+	Route{
+		"GetExpenses",
+		"GET",
+		"/expenses",
+		handlers.GetExpenses,
+	},
+	Route{
+		"Createexpenses",
+		"POST",
+		"/expenses",
+		handlers.CreateExpense,
+	},
+	Route{
+		"GetExpense",
+		"GET",
+		"/expenses/{id}",
+		handlers.GetExpense,
+	},
+	Route{
+		"UpdateExpense",
+		"PUT",
+		"/expenses/{id}",
+		handlers.UpdateExpense,
+	},
+	Route{
+		"DeleteExpense",
+		"DELETE",
+		"/expenses/{id}",
+		handlers.DeleteExpense,
 	},
 }
