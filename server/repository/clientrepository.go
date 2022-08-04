@@ -35,7 +35,7 @@ func CreateClient(client *model.Client) (uuid.UUID, error) {
 
 func UpdateClient(client *model.Client) error {
 	if DB.Save(client).Error != nil {
-		return fmt.Errorf("cannot create client: %w", DB.Error)
+		return fmt.Errorf("cannot update client: %w", DB.Error)
 	}
 	return nil
 }
