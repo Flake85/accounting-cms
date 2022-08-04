@@ -39,4 +39,10 @@ var routes = Routes{
 		"/clients/{id}",
 		handlers.UpdateClient,
 	},
+	Route{
+		"DeleteClient",
+		"DELETE",
+		"/clients/{id}",
+		handlers.DeleteClient,
+	},
 }

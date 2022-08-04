@@ -96,3 +96,23 @@ func UpdateClient(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(&client)
 }
+
+func DeleteClient(w http.ResponseWriter, r *http.Request) {
+	clientIdParam := mux.Vars(r)["id"]
+	clientId, err := uuid.Parse(clientIdParam)
+	if err != nil {
+		log.Printf("%v, is not a valid uuid.", clientIdParam)
+		w.WriteHeader(400)
+		fmt.Fprintln(w, "invalid uuid")
+		return
+	}
+	query := model.Client{}
+	query.ID = clientId
+	err = repository.DeleteClient(&query); if err != nil {
+		w.WriteHeader(500)
+		fmt.Fprintln(w, "invalid uuid")
+		return
+	}
+	json.NewEncoder(w).Encode(&query)
+
+}
