@@ -45,4 +45,34 @@ var routes = Routes{
 		"/clients/{id}",
 		handlers.DeleteClient,
 	},
+	Route{
+		"GetInvoices",
+		"GET",
+		"/invoices",
+		handlers.GetInvoices,
+	},
+	Route{
+		"CreateInvoices",
+		"POST",
+		"/invoices",
+		handlers.CreateInvoice,
+	},
+	Route{
+		"GetInvoice",
+		"GET",
+		"/invoices/{id}",
+		handlers.GetInvoice,
+	},
+	Route{
+		"UpdateInvoice",
+		"PUT",
+		"/invoices/{id}",
+		handlers.UpdateInvoice,
+	},
+	Route{
+		"DeleteClient",
+		"DELETE",
+		"/invoices/{id}",
+		handlers.DeleteInvoice,
+	},
 }
