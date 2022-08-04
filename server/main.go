@@ -11,8 +11,8 @@ import (
 	"github.com/rs/cors"
 
 	"server/model"
+	"server/repository"
 	router "server/router"
-	handlers "server/handlers"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
   	}
   	defer db.Close()
 	db.AutoMigrate(&model.Client{})
-	handlers.DB = db
+	repository.DB = db
 	r := router.NewRouter()	
 	handler := cors.Default().Handler(r)
 
