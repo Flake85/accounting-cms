@@ -1,0 +1,117 @@
+package handlers
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"server/model"
+	"server/repository"
+
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+)
+
+func GetLabors(w http.ResponseWriter, r *http.Request) {
+	labors, err := repository.GetAllLabors()
+	if err != nil {
+		log.Println("error occurred getting labors")
+		w.WriteHeader(500)
+		fmt.Fprintln(w, "error occurred retrieving labors")
+		return
+	}
+	json.NewEncoder(w).Encode(&labors)
+}
+
+func GetLabor(w http.ResponseWriter, r *http.Request) {
+	laborIdParam := mux.Vars(r)["id"]
+	laborId, err := uuid.Parse(laborIdParam)
+	if err != nil {
+		log.Printf("%v, is not a valid uuid.", laborIdParam)
+		w.WriteHeader(400)
+		fmt.Fprintln(w, "invalid uuid")
+		return
+	}
+	labor, err := repository.FindLaborByID(laborId)
+	if err != nil {
+		log.Printf("labor: %v, not found", laborIdParam)
+		w.WriteHeader(404)
+		fmt.Fprintln(w, "labor not found")
+		return
+	}
+	json.NewEncoder(w).Encode(&labor)
+}
+
+func CreateLabor(w http.ResponseWriter, r *http.Request) {
+	var labor model.Labor
+	if err := json.NewDecoder(r.Body).Decode(&labor); err != nil {
+		log.Print("labor decode malfunction")
+		w.WriteHeader(400)
+		fmt.Fprintln(w, "an error occurred creating labor")
+		return
+	}
+	laborId, err := repository.CreateLabor(&labor) 
+	if err != nil {
+		log.Printf("labor: %v, not created", laborId)
+		w.WriteHeader(500)
+		fmt.Fprintln(w, "an error occurred creating labor")
+		return
+	}
+	labor.ID = laborId
+	json.NewEncoder(w).Encode(&labor)
+}
+
+func UpdateLabor(w http.ResponseWriter, r *http.Request) {
+	laborIdParam := mux.Vars(r)["id"]
+	laborId, err := uuid.Parse(laborIdParam)
+	if err != nil {
+		log.Printf("%v, is not a valid uuid.", laborIdParam)
+		w.WriteHeader(400)
+		fmt.Fprintln(w, "an error occurred updating labor")
+		return
+	}
+	labor, err := repository.FindLaborByID(laborId)
+	if err != nil {
+		log.Printf("labor not found with uuid: %v", laborId)
+		w.WriteHeader(404)
+		fmt.Fprintln(w, "labor not found")
+		return
+	}
+	req := model.Labor{}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Print("labor decode malfunction")
+		w.WriteHeader(400)
+		fmt.Fprintln(w, "an error occurred updating labor")
+		return
+	}
+	labor.Description = req.Description
+	labor.HoursWorked = req.HoursWorked
+	labor.HourlyRate = req.HourlyRate
+	
+	if err := repository.UpdateLabor(&labor); err != nil {
+		log.Printf("error occurred updating labor id: %v", laborId)
+		w.WriteHeader(500)
+		fmt.Fprintln(w, "an error occurred updating labor")
+		return
+	}
+	json.NewEncoder(w).Encode(&labor)
+}
+
+func DeleteLabor(w http.ResponseWriter, r *http.Request) {
+	laborIdParam := mux.Vars(r)["id"]
+	laborId, err := uuid.Parse(laborIdParam)
+	if err != nil {
+		log.Printf("%v, is not a valid uuid.", laborIdParam)
+		w.WriteHeader(400)
+		fmt.Fprintln(w, "invalid uuid")
+		return
+	}
+	query := model.Labor{}
+	query.ID = laborId
+	err = repository.DeleteLabor(&query); if err != nil {
+		w.WriteHeader(500)
+		fmt.Fprintln(w, "error deleting labor")
+		return
+	}
+	json.NewEncoder(w).Encode(&query)
+}
