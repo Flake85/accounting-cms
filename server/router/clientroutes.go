@@ -1,36 +1,39 @@
 package router
 
-import "server/handlers"
+import (
+	"server/handlers"
+	"server/model"
+)
 
 var clientRoutes = Routes{
-	Route{
-		"GetClients",
-		"GET",
-		"/client",
-		handlers.GetClients,
+	model.Route{
+		Name: "GetClients",
+		Method: "GET",
+		Pattern: "/client",
+		HandlerFunc: handlers.GetClients,
 	},
-	Route{
-		"CreateClients",
-		"POST",
-		"/client",
-		handlers.CreateClient,
+	model.Route{
+		Name: "CreateClients",
+		Method: "POST",
+		Pattern: "/client",
+		HandlerFunc: handlers.CreateClient,
 	},
-	Route{
-		"GetClient",
-		"GET",
-		"/client/{id}",
-		handlers.GetClient,
+	model.Route{
+		Name: "GetClient",
+		Method: "GET",
+		Pattern: "/client/{id}",
+		HandlerFunc: handlers.GetClient,
 	},
-	Route{
-		"UpdateClient",
-		"PUT",
-		"/client/{id}",
-		handlers.UpdateClient,
+	model.Route{
+		Name: "UpdateClient",
+		Method: "PUT",
+		Pattern: "/client/{id}",
+		HandlerFunc: handlers.UpdateClient,
 	},
-	Route{
-		"DeleteClient",
-		"DELETE",
-		"/client/{id}",
-		handlers.DeleteClient,
+	model.Route{
+		Name: "DeleteClient",
+		Method: "DELETE",
+		Pattern: "/client/{id}",
+		HandlerFunc: handlers.DeleteClient,
 	},
 }

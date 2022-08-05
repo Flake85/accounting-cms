@@ -1,36 +1,39 @@
 package router
 
-import "server/handlers"
+import (
+	"server/handlers"
+	"server/model"
+)
 
 var invoiceRoutes = Routes{
-	Route{
-		"GetInvoices",
-		"GET",
-		"/invoice",
-		handlers.GetInvoices,
+	model.Route{
+		Name: "GetInvoices",
+		Method: "GET",
+		Pattern: "/invoice",
+		HandlerFunc: handlers.GetInvoices,
 	},
-	Route{
-		"CreateInvoices",
-		"POST",
-		"/invoice",
-		handlers.CreateInvoice,
+	model.Route{
+		Name: "CreateInvoices",
+		Method: "POST",
+		Pattern: "/invoice",
+		HandlerFunc: handlers.CreateInvoice,
 	},
-	Route{
-		"GetInvoice",
-		"GET",
-		"/invoice/{id}",
-		handlers.GetInvoice,
+	model.Route{
+		Name: "GetInvoice",
+		Method: "GET",
+		Pattern: "/invoice/{id}",
+		HandlerFunc: handlers.GetInvoice,
 	},
-	Route{
-		"UpdateInvoice",
-		"PUT",
-		"/invoice/{id}",
-		handlers.UpdateInvoice,
+	model.Route{
+		Name: "UpdateInvoice",
+		Method: "PUT",
+		Pattern: "/invoice/{id}",
+		HandlerFunc: handlers.UpdateInvoice,
 	},
-	Route{
-		"DeleteInvoice",
-		"DELETE",
-		"/invoice/{id}",
-		handlers.DeleteInvoice,
+	model.Route{
+		Name: "DeleteInvoice",
+		Method: "DELETE",
+		Pattern: "/invoice/{id}",
+		HandlerFunc: handlers.DeleteInvoice,
 	},
 }

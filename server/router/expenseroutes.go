@@ -1,36 +1,39 @@
 package router
 
-import "server/handlers"
+import (
+	"server/handlers"
+	"server/model"
+)
 
 var expenseRoutes = Routes{
-	Route{
-		"GetExpenses",
-		"GET",
-		"/expense",
-		handlers.GetExpenses,
+	model.Route{
+		Name: "GetExpenses",
+		Method: "GET",
+		Pattern: "/expense",
+		HandlerFunc: handlers.GetExpenses,
 	},
-	Route{
-		"Createexpenses",
-		"POST",
-		"/expense",
-		handlers.CreateExpense,
+	model.Route{
+		Name: "CreateExpenses",
+		Method: "POST",
+		Pattern: "/expense",
+		HandlerFunc: handlers.CreateExpense,
 	},
-	Route{
-		"GetExpense",
-		"GET",
-		"/expense/{id}",
-		handlers.GetExpense,
+	model.Route{
+		Name: "GetExpense",
+		Method: "GET",
+		Pattern: "/expense/{id}",
+		HandlerFunc: handlers.GetExpense,
 	},
-	Route{
-		"UpdateExpense",
-		"PUT",
-		"/expense/{id}",
-		handlers.UpdateExpense,
+	model.Route{
+		Name: "UpdateExpense",
+		Method: "PUT",
+		Pattern: "/expense/{id}",
+		HandlerFunc: handlers.UpdateExpense,
 	},
-	Route{
-		"DeleteExpense",
-		"DELETE",
-		"/expense/{id}",
-		handlers.DeleteExpense,
+	model.Route{
+		Name: "DeleteExpense",
+		Method: "DELETE",
+		Pattern: "/expense/{id}",
+		HandlerFunc: handlers.DeleteExpense,
 	},
 }
