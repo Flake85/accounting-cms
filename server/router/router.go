@@ -9,8 +9,8 @@ import (
 func NewRouter () *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
-	for i := 0; i < len(routes); i++ {
-		for _, route := range routes[i] {
+	for _, route := range routes {
+		for _, route := range route {
 		var handler http.HandlerFunc
 		handler = route.HandlerFunc
 		router.
