@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"server/model"
 	"server/repository"
+	"server/request"
+	"server/validation"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -43,18 +45,23 @@ func GetClient(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateClient(w http.ResponseWriter, r *http.Request) {
-	var client model.Client
-	if err := json.NewDecoder(r.Body).Decode(&client); err != nil {
+	var clientReq request.ClientRequest
+	if err := json.NewDecoder(r.Body).Decode(&clientReq); err != nil {
 		log.Print("client decode malfunction")
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "an error occurred creating client")
 		return
 	}
-	clientId, err := repository.CreateClient(&client) 
-	if err != nil {
+	client, err := validation.ClientValidation(&clientReq); if err != nil {
+		log.Println("client not created")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "an error occurred creating client: %v", err)
+		return
+	}
+	clientId, err := repository.CreateClient(&client); if err != nil {
 		log.Printf("client: %v, not created", clientId)
 		w.WriteHeader(500)
-		fmt.Fprintln(w, "an error occurred creating client")
+		fmt.Fprintf(w, "an error occurred creating client: %v", err)
 		return
 	}
 	client.ID = clientId
@@ -77,17 +84,22 @@ func UpdateClient(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "client not found")
 		return
 	}
-	req := model.Client{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	clientReq := request.ClientRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&clientReq); err != nil {
 		log.Print("client decode malfunction")
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "an error occurred updating client")
 		return
 	}
-	client.Name = req.Name
-	client.Email = req.Email
-	client.Address = req.Address
-	
+	clientValidated, err := validation.ClientValidation(&clientReq); if err != nil {
+		log.Println("client not created")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "an error occurred creating client: %v", err)
+		return
+	}
+	client.Name = clientValidated.Name
+	client.Email = clientValidated.Email
+	client.Address = clientValidated.Address
 	if err := repository.UpdateClient(&client); err != nil {
 		log.Printf("error occurred updating client id: %v", clientId)
 		w.WriteHeader(500)

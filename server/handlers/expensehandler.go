@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"server/model"
 	"server/repository"
+	"server/request"
+	"server/validation"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -43,18 +45,23 @@ func GetExpense(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateExpense(w http.ResponseWriter, r *http.Request) {
-	var expense model.Expense
-	if err := json.NewDecoder(r.Body).Decode(&expense); err != nil {
-		log.Print("expense decode malfunction")
+	var expenseReq request.ExpenseRequest
+	if err := json.NewDecoder(r.Body).Decode(&expenseReq); err != nil {
+		log.Print("Expense decode malfunction")
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "an error occurred creating expense")
 		return
 	}
-	expenseId, err := repository.CreateExpense(&expense) 
-	if err != nil {
+	expense, err := validation.ExpenseValidation(&expenseReq); if err != nil {
+		log.Println("expense not created")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "an error occurred creating expense: %v", err)
+		return
+	}
+	expenseId, err := repository.CreateExpense(&expense); if err != nil {
 		log.Printf("expense: %v, not created", expenseId)
 		w.WriteHeader(500)
-		fmt.Fprintln(w, "an error occurred creating expense")
+		fmt.Fprintf(w, "an error occurred creating expense: %v", err)
 		return
 	}
 	expense.ID = expenseId
@@ -77,16 +84,21 @@ func UpdateExpense(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "expense not found")
 		return
 	}
-	req := model.Expense{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	expenseReq := request.ExpenseRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&expenseReq); err != nil {
 		log.Print("expense decode malfunction")
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "an error occurred updating expense")
 		return
 	}
-	expense.Description = req.Description
-	expense.Cost = req.Cost
-	
+	expenseValidated, err := validation.ExpenseValidation(&expenseReq); if err != nil {
+		log.Println("expense not created")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "an error occurred creating expense: %v", err)
+		return
+	}
+	expense.Description = expenseValidated.Description
+	expense.Cost = expenseValidated.Cost
 	if err := repository.UpdateExpense(&expense); err != nil {
 		log.Printf("error occurred updating expense id: %v", expenseId)
 		w.WriteHeader(500)

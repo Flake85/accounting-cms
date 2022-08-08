@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"server/model"
 	"server/repository"
+	"server/request"
+	"server/validation"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -43,18 +45,23 @@ func GetSale(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateSale(w http.ResponseWriter, r *http.Request) {
-	var sale model.Sale
-	if err := json.NewDecoder(r.Body).Decode(&sale); err != nil {
-		log.Print("sale decode malfunction")
+	var saleReq request.SaleRequest
+	if err := json.NewDecoder(r.Body).Decode(&saleReq); err != nil {
+		log.Printf("sale decode malfunction: %v", err)
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "an error occurred creating sale")
 		return
 	}
-	saleId, err := repository.CreateSale(&sale) 
-	if err != nil {
+	sale, err := validation.SaleValidation(&saleReq); if err != nil {
+		log.Println("sale not created")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "an error occurred creating sale: %v", err)
+		return
+	}
+	saleId, err := repository.CreateSale(&sale); if err != nil {
 		log.Printf("sale: %v, not created", saleId)
 		w.WriteHeader(500)
-		fmt.Fprintln(w, "an error occurred creating sale")
+		fmt.Fprintf(w, "an error occurred creating sale: %v", err)
 		return
 	}
 	sale.ID = saleId
@@ -77,16 +84,25 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "sale not found")
 		return
 	}
-	req := model.Sale{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	saleReq := request.SaleRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&saleReq); err != nil {
 		log.Print("sale decode malfunction")
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "an error occurred updating sale")
 		return
 	}
-	sale.Units = req.Units
-	sale.UnitCost = req.UnitCost
-	
+	saleValidated, err := validation.SaleValidation(&saleReq); if err != nil {
+		log.Println("sale not created")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "an error occurred creating sale: %v", err)
+		return
+	}
+	sale.ClientId = saleValidated.ClientId
+	sale.InvoiceId = saleValidated.InvoiceId
+	sale.Description = saleValidated.Description
+	sale.Units = saleValidated.Units
+	sale.UnitCost = saleValidated.UnitCost
+
 	if err := repository.UpdateSale(&sale); err != nil {
 		log.Printf("error occurred updating sale id: %v", saleId)
 		w.WriteHeader(500)

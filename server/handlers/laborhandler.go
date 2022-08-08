@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"server/model"
 	"server/repository"
+	"server/request"
+	"server/validation"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -43,18 +45,23 @@ func GetLabor(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateLabor(w http.ResponseWriter, r *http.Request) {
-	var labor model.Labor
-	if err := json.NewDecoder(r.Body).Decode(&labor); err != nil {
-		log.Print("labor decode malfunction")
+	var laborReq request.LaborRequest
+	if err := json.NewDecoder(r.Body).Decode(&laborReq); err != nil {
+		log.Printf("labor decode malfunction: %v", err)
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "an error occurred creating labor")
 		return
 	}
-	laborId, err := repository.CreateLabor(&labor) 
-	if err != nil {
+	labor, err := validation.LaborValidation(&laborReq); if err != nil {
+		log.Println("labor not created")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "an error occurred creating labor: %v", err)
+		return
+	}
+	laborId, err := repository.CreateLabor(&labor); if err != nil {
 		log.Printf("labor: %v, not created", laborId)
 		w.WriteHeader(500)
-		fmt.Fprintln(w, "an error occurred creating labor")
+		fmt.Fprintf(w, "an error occurred creating labor: %v", err)
 		return
 	}
 	labor.ID = laborId
@@ -77,17 +84,25 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "labor not found")
 		return
 	}
-	req := model.Labor{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	laborReq := request.LaborRequest{}
+	if err := json.NewDecoder(r.Body).Decode(&laborReq); err != nil {
 		log.Print("labor decode malfunction")
 		w.WriteHeader(400)
 		fmt.Fprintln(w, "an error occurred updating labor")
 		return
 	}
-	labor.Description = req.Description
-	labor.HoursWorked = req.HoursWorked
-	labor.HourlyRate = req.HourlyRate
-	
+	laborValidated, err := validation.LaborValidation(&laborReq); if err != nil {
+		log.Println("labor not created")
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "an error occurred creating labor: %v", err)
+		return
+	}
+	labor.Description = laborValidated.Description
+	labor.ClientId = laborValidated.ClientId
+	labor.InvoiceId = laborValidated.InvoiceId
+	labor.HoursWorked = laborValidated.HoursWorked
+	labor.HourlyRate = laborValidated.HourlyRate
+
 	if err := repository.UpdateLabor(&labor); err != nil {
 		log.Printf("error occurred updating labor id: %v", laborId)
 		w.WriteHeader(500)
