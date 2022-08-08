@@ -1,16 +1,25 @@
 ## Clients:
-- id number
+- id uuid
+- createdAt time
+- updatedAt time
+- deletedAt time
 - name string
 - address string
 - email string
 
 ## Invoices:
-- id number
+- id uuid
+- createdAt time
+- updatedAt time
+- deletedAt time
 - clientId number
 - isInvoiced boolean
 
 ## Labor:
-- id number
+- id uuid
+- createdAt time
+- updatedAt time
+- deletedAt time
 - description string
 - clientId number
 - invoiceId number
@@ -18,7 +27,10 @@
 - hourly_rate number
 
 ## Sales:
-- id number
+- id uuid
+- createdAt time
+- updatedAt time
+- deletedAt time
 - description string
 - clientId number
 - invoiceId number
@@ -26,6 +38,9 @@
 - unit_cost number
 
 ## Expenses:
-- id number
+- id uuid
+- createdAt time
+- updatedAt time
+- deletedAt time
 - description string
 - cost number
