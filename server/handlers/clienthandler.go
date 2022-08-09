@@ -53,9 +53,9 @@ func CreateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	client, err := validation.ClientValidation(&clientReq); if err != nil {
-		log.Println("client not created")
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "an error occurred creating client: %v", err)
+		log.Println("validation error. client not created")
+		w.WriteHeader(422)
+		fmt.Fprintf(w, "client validation error: %v", err)
 		return
 	}
 	clientId, err := repository.CreateClient(&client); if err != nil {
@@ -92,9 +92,9 @@ func UpdateClient(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	clientValidated, err := validation.ClientValidation(&clientReq); if err != nil {
-		log.Println("client not created")
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "an error occurred creating client: %v", err)
+		log.Println("validation error. client not created")
+		w.WriteHeader(422)
+		fmt.Fprintf(w, "client validation error: %v", err)
 		return
 	}
 	client.Name = clientValidated.Name

@@ -53,9 +53,9 @@ func CreateSale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sale, err := validation.SaleValidation(&saleReq); if err != nil {
-		log.Println("sale not created")
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "an error occurred creating sale: %v", err)
+		log.Println("validation error. sale not created")
+		w.WriteHeader(422)
+		fmt.Fprintf(w, "sale validation error: %v", err)
 		return
 	}
 	saleId, err := repository.CreateSale(&sale); if err != nil {
@@ -92,9 +92,9 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	saleValidated, err := validation.SaleValidation(&saleReq); if err != nil {
-		log.Println("sale not created")
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "an error occurred creating sale: %v", err)
+		log.Println("validation error. sale not created")
+		w.WriteHeader(422)
+		fmt.Fprintf(w, "sale validation error: %v", err)
 		return
 	}
 	sale.ClientId = saleValidated.ClientId

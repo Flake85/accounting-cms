@@ -53,9 +53,9 @@ func CreateLabor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	labor, err := validation.LaborValidation(&laborReq); if err != nil {
-		log.Println("labor not created")
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "an error occurred creating labor: %v", err)
+		log.Println("validation error. labor not created")
+		w.WriteHeader(422)
+		fmt.Fprintf(w, "labor validation error: %v", err)
 		return
 	}
 	laborId, err := repository.CreateLabor(&labor); if err != nil {
@@ -92,9 +92,9 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	laborValidated, err := validation.LaborValidation(&laborReq); if err != nil {
-		log.Println("labor not created")
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "an error occurred creating labor: %v", err)
+		log.Println("validation error. labor not created")
+		w.WriteHeader(422)
+		fmt.Fprintf(w, "labor validation error: %v", err)
 		return
 	}
 	labor.Description = laborValidated.Description

@@ -53,9 +53,9 @@ func CreateExpense(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	expense, err := validation.ExpenseValidation(&expenseReq); if err != nil {
-		log.Println("expense not created")
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "an error occurred creating expense: %v", err)
+		log.Println("validation error. expense not created")
+		w.WriteHeader(422)
+		fmt.Fprintf(w, "client validation error: %v", err)
 		return
 	}
 	expenseId, err := repository.CreateExpense(&expense); if err != nil {
@@ -92,9 +92,9 @@ func UpdateExpense(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	expenseValidated, err := validation.ExpenseValidation(&expenseReq); if err != nil {
-		log.Println("expense not created")
-		w.WriteHeader(400)
-		fmt.Fprintf(w, "an error occurred creating expense: %v", err)
+		log.Println("validation error. expense not created")
+		w.WriteHeader(422)
+		fmt.Fprintf(w, "expense validation error: %v", err)
 		return
 	}
 	expense.Description = expenseValidated.Description
