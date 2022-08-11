@@ -17,9 +17,16 @@ import (
 func GetClients(w http.ResponseWriter, r *http.Request) {
 	clients, err := repository.GetAllClients()
 	if err != nil {
+		// log.Println("error occurred getting clients")
+		// w.WriteHeader(500)
+		// fmt.Fprintln(w, "error occurred retrieving clients")
+		// return
 		log.Println("error occurred getting clients")
 		w.WriteHeader(500)
-		fmt.Fprintln(w, "error occurred retrieving clients")
+		resp := make(map[string]string)
+		resp["message"] = "error occurred retrieving clients"
+		jsonResp, _ := json.Marshal(resp)
+		w.Write(jsonResp)
 		return
 	}
 	json.NewEncoder(w).Encode(&clients)
@@ -38,7 +45,16 @@ func GetClient(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("client: %v, not found", clientIdParam)
 		w.WriteHeader(404)
-		fmt.Fprintln(w, "client not found")
+
+		// code added for encoding response
+		res := make(map[string]string)
+		res["error"] = err.Error()
+		res["message"] = "client not found"
+		jsonResp, _ := json.Marshal(res)
+		w.Write(jsonResp)
+		
+		// this is not valid JSON (I knew). just wanted something for postman and testing endpoint(s)
+		// fmt.Fprintln(w, "client not found")
 		return
 	}
 	json.NewEncoder(w).Encode(&client)
