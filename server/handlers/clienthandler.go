@@ -2,12 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"server/model"
 	"server/repository"
 	"server/request"
+	"server/response"
 	"server/validation"
 
 	"github.com/google/uuid"
@@ -17,129 +16,145 @@ import (
 func GetClients(w http.ResponseWriter, r *http.Request) {
 	clients, err := repository.GetAllClients()
 	if err != nil {
-		// log.Println("error occurred getting clients")
-		// w.WriteHeader(500)
-		// fmt.Fprintln(w, "error occurred retrieving clients")
-		// return
-		log.Println("error occurred getting clients")
-		w.WriteHeader(500)
-		resp := make(map[string]string)
-		resp["message"] = "error occurred retrieving clients"
-		jsonResp, _ := json.Marshal(resp)
-		w.Write(jsonResp)
+		res := response.NewErrorResponse(
+			500, response.NewBaseMessage("error occurred retrieving clients"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
-	json.NewEncoder(w).Encode(&clients)
+	res := response.NewOkResponse(&clients)
+	json.NewEncoder(w).Encode(res.Body)
 }
 
 func GetClient(w http.ResponseWriter, r *http.Request) {
 	clientIdParam := mux.Vars(r)["id"]
 	clientId, err := uuid.Parse(clientIdParam)
 	if err != nil {
-		log.Printf("%v, is not a valid uuid.", clientIdParam)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "invalid uuid")
+		res := response.NewErrorResponse(
+			400, response.NewBaseMessage("invalid uuid"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	client, err := repository.FindClientByID(clientId)
 	if err != nil {
-		log.Printf("client: %v, not found", clientIdParam)
-		w.WriteHeader(404)
-
-		// code added for encoding response
-		res := make(map[string]string)
-		res["error"] = err.Error()
-		res["message"] = "client not found"
-		jsonResp, _ := json.Marshal(res)
-		w.Write(jsonResp)
-		
-		// this is not valid JSON (I knew). just wanted something for postman and testing endpoint(s)
-		// fmt.Fprintln(w, "client not found")
+		res := response.NewErrorResponse(
+			404, response.NewBaseMessage("client not found"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
-	json.NewEncoder(w).Encode(&client)
+	res := response.NewOkResponse(&client)
+	json.NewEncoder(w).Encode(res.Body)
 }
 
 func CreateClient(w http.ResponseWriter, r *http.Request) {
 	var clientReq request.ClientRequest
 	if err := json.NewDecoder(r.Body).Decode(&clientReq); err != nil {
-		log.Print("client decode malfunction")
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "an error occurred creating client")
+		res := response.NewErrorResponse(
+			400, response.NewBaseMessage("client decode malfunction"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	client, err := validation.ClientValidation(&clientReq); if err != nil {
-		log.Println("validation error. client not created")
-		w.WriteHeader(422)
-		fmt.Fprintf(w, "client validation error: %v", err)
+		res := response.NewErrorResponse(
+			422, response.NewBaseMessage("client validation error"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	clientId, err := repository.CreateClient(&client); if err != nil {
-		log.Printf("client: %v, not created", clientId)
-		w.WriteHeader(500)
-		fmt.Fprintf(w, "an error occurred creating client: %v", err)
+		res := response.NewErrorResponse(
+			500, response.NewBaseMessage("error occurred creating client"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	client.ID = clientId
-	json.NewEncoder(w).Encode(&client)
+	res := response.NewOkResponse(&client)
+	json.NewEncoder(w).Encode(res.Body)
 }
 
 func UpdateClient(w http.ResponseWriter, r *http.Request) {
 	clientIdParam := mux.Vars(r)["id"]
 	clientId, err := uuid.Parse(clientIdParam)
 	if err != nil {
-		log.Printf("%v, is not a valid uuid.", clientIdParam)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "an error occurred updating client")
+		res := response.NewErrorResponse(
+			400, response.NewBaseMessage("invalid uuid"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	client, err := repository.FindClientByID(clientId)
 	if err != nil {
-		log.Printf("client not found with uuid: %v", clientId)
-		w.WriteHeader(404)
-		fmt.Fprintln(w, "client not found")
+		res := response.NewErrorResponse(
+			404, response.NewBaseMessage("client not found"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	clientReq := request.ClientRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&clientReq); err != nil {
-		log.Print("client decode malfunction")
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "an error occurred updating client")
+		res := response.NewErrorResponse(
+			400, response.NewBaseMessage("error occurred decoding client"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	clientValidated, err := validation.ClientValidation(&clientReq); if err != nil {
-		log.Println("validation error. client not created")
-		w.WriteHeader(422)
-		fmt.Fprintf(w, "client validation error: %v", err)
+		res := response.NewErrorResponse(
+			422, response.NewBaseMessage("client validation error"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	client.Name = clientValidated.Name
 	client.Email = clientValidated.Email
 	client.Address = clientValidated.Address
 	if err := repository.UpdateClient(&client); err != nil {
-		log.Printf("error occurred updating client id: %v", clientId)
-		w.WriteHeader(500)
-		fmt.Fprintln(w, "an error occurred updating client")
+		res := response.NewErrorResponse(
+			500, response.NewBaseMessage("error occurred updating client"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
-	json.NewEncoder(w).Encode(&client)
+	res := response.NewOkResponse(&client)
+	json.NewEncoder(w).Encode(res.Body)
 }
 
 func DeleteClient(w http.ResponseWriter, r *http.Request) {
 	clientIdParam := mux.Vars(r)["id"]
 	clientId, err := uuid.Parse(clientIdParam)
 	if err != nil {
-		log.Printf("%v, is not a valid uuid.", clientIdParam)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "invalid uuid")
+		res := response.NewErrorResponse(
+			400, response.NewBaseMessage("invalid uuid"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	query := model.Client{}
 	query.ID = clientId
 	err = repository.DeleteClient(&query); if err != nil {
-		w.WriteHeader(500)
-		fmt.Fprintln(w, "invalid uuid")
+		res := response.NewErrorResponse(
+			500, response.NewBaseMessage("invalid uuid"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
-	json.NewEncoder(w).Encode(&query)
+	res := response.NewOkResponse(&query)
+	json.NewEncoder(w).Encode(res.Body)
 }

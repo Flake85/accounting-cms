@@ -2,12 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"server/model"
 	"server/repository"
 	"server/request"
+	"server/response"
 	"server/validation"
 
 	"github.com/google/uuid"
@@ -17,84 +16,107 @@ import (
 func GetSales(w http.ResponseWriter, r *http.Request) {
 	sales, err := repository.GetAllSales()
 	if err != nil {
-		log.Println("error occurred getting sales")
-		w.WriteHeader(500)
-		fmt.Fprintln(w, "error occurred retrieving sales")
+		res := response.NewErrorResponse(
+			500, response.NewBaseMessage("error occurred retrieveing sales"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
-	json.NewEncoder(w).Encode(&sales)
+	res := response.NewOkResponse(&sales)
+	json.NewEncoder(w).Encode(res.Body)
 }
 
 func GetSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
-		log.Printf("%v, is not a valid uuid.", saleIdParam)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "invalid uuid")
+		res := response.NewErrorResponse(
+			400, response.NewBaseMessage("invalid uuid"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	sale, err := repository.FindSaleByID(saleId)
 	if err != nil {
-		log.Printf("sale: %v, not found", saleIdParam)
-		w.WriteHeader(404)
-		fmt.Fprintln(w, "sale not found")
+		res := response.NewErrorResponse(
+			404, response.NewBaseMessage("sale not found"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
-	json.NewEncoder(w).Encode(&sale)
+	res := response.NewOkResponse(&sale)
+	json.NewEncoder(w).Encode(res.Body)
 }
 
 func CreateSale(w http.ResponseWriter, r *http.Request) {
 	var saleReq request.SaleRequest
 	if err := json.NewDecoder(r.Body).Decode(&saleReq); err != nil {
-		log.Printf("sale decode malfunction: %v", err)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "an error occurred creating sale")
+		res := response.NewErrorResponse(
+			400, response.NewBaseMessage("sale decode malfunction"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	sale, err := validation.SaleValidation(&saleReq); if err != nil {
-		log.Println("validation error. sale not created")
-		w.WriteHeader(422)
-		fmt.Fprintf(w, "sale validation error: %v", err)
+		res := response.NewErrorResponse(
+			422, response.NewBaseMessage("sale validation error"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	saleId, err := repository.CreateSale(&sale); if err != nil {
-		log.Printf("sale: %v, not created", saleId)
-		w.WriteHeader(500)
-		fmt.Fprintf(w, "an error occurred creating sale: %v", err)
+		res := response.NewErrorResponse(
+			500, response.NewBaseMessage("error occurred creating sale"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	sale.ID = saleId
-	json.NewEncoder(w).Encode(&sale)
+	res := response.NewOkResponse(&sale)
+	json.NewEncoder(w).Encode(res.Body)
 }
 
 func UpdateSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
-		log.Printf("%v, is not a valid uuid.", saleIdParam)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "an error occurred updating sale")
+		res := response.NewErrorResponse(
+			400, response.NewBaseMessage("invalid uuid"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	sale, err := repository.FindSaleByID(saleId)
 	if err != nil {
-		log.Printf("sale not found with uuid: %v", saleId)
-		w.WriteHeader(404)
-		fmt.Fprintln(w, "sale not found")
+		res := response.NewErrorResponse(
+			404, response.NewBaseMessage("sale not found"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	saleReq := request.SaleRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&saleReq); err != nil {
-		log.Print("sale decode malfunction")
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "an error occurred updating sale")
+		res := response.NewErrorResponse(
+			400, response.NewBaseMessage("error occurred decoding sale"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	saleValidated, err := validation.SaleValidation(&saleReq); if err != nil {
-		log.Println("validation error. sale not created")
-		w.WriteHeader(422)
-		fmt.Fprintf(w, "sale validation error: %v", err)
+		res := response.NewErrorResponse(
+			422, response.NewBaseMessage("sale validation error"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	sale.ClientId = saleValidated.ClientId
@@ -104,29 +126,38 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 	sale.UnitCost = saleValidated.UnitCost
 
 	if err := repository.UpdateSale(&sale); err != nil {
-		log.Printf("error occurred updating sale id: %v", saleId)
-		w.WriteHeader(500)
-		fmt.Fprintln(w, "an error occurred updating sale")
+		res := response.NewErrorResponse(
+			500, response.NewBaseMessage("error occurred updating sale"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
-	json.NewEncoder(w).Encode(&sale)
+	res := response.NewOkResponse(&sale)
+	json.NewEncoder(w).Encode(res.Body)
 }
 
 func DeleteSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
-		log.Printf("%v, is not a valid uuid.", saleIdParam)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "invalid uuid")
+		res := response.NewErrorResponse(
+			400, response.NewBaseMessage("invalid uuid"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	query := model.Sale{}
 	query.ID = saleId
 	err = repository.DeleteSale(&query); if err != nil {
-		w.WriteHeader(500)
-		fmt.Fprintln(w, "invalid uuid")
+		res := response.NewErrorResponse(
+			500, response.NewBaseMessage("invalid uuid"),
+		)
+		w.WriteHeader(res.Code)
+		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
-	json.NewEncoder(w).Encode(&query)
+	res := response.NewOkResponse(&query)
+	json.NewEncoder(w).Encode(res.Body)
 }
