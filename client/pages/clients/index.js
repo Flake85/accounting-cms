@@ -3,7 +3,7 @@ import Link from 'next/link'
 function Clients({ clients }) {
     return (
         <ul>
-            {clients.map((client) => (
+            {clients.data.map((client) => (
                 <li key={client.id}>
                     <Link href={`/clients/`+client.id}><a>{ client.name }</a></Link>
                 </li>

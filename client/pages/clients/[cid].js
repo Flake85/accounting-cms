@@ -1,9 +1,9 @@
 function Client({ client }) {
     return (
         <div>
-            <p>id: {client.id}</p>
-            <p>name: {client.name}</p>
-            <p>created: {client.createdAt}</p>
+            <p>name: {client.data.name}</p>
+            <p>email: {client.data.email}</p>
+            <p>address: {client.data.address}</p>
         </div>
     )
 }
