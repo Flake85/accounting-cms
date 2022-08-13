@@ -17,7 +17,7 @@ func GetLabors(w http.ResponseWriter, r *http.Request) {
 	labors, err := repository.GetAllLabors()
 	if err != nil {
 		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("error occurred retrieving labors"),
+			500, response.NewBaseMessage("error occurred retrieving labors"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -32,7 +32,7 @@ func GetLabor(w http.ResponseWriter, r *http.Request) {
 	laborId, err := uuid.Parse(laborIdParam)
 	if err != nil {
 		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("invalid uuid"),
+			400, response.NewBaseMessage("invalid uuid"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -41,7 +41,7 @@ func GetLabor(w http.ResponseWriter, r *http.Request) {
 	labor, err := repository.FindLaborByID(laborId)
 	if err != nil {
 		res := response.NewErrorResponse(
-			404, response.NewBaseMessage("labor not found"),
+			404, response.NewBaseMessage("labor not found"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -55,7 +55,7 @@ func CreateLabor(w http.ResponseWriter, r *http.Request) {
 	var laborReq request.LaborRequest
 	if err := json.NewDecoder(r.Body).Decode(&laborReq); err != nil {
 		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("labor decode malfunction"),
+			400, response.NewBaseMessage("labor decode malfunction"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -63,7 +63,7 @@ func CreateLabor(w http.ResponseWriter, r *http.Request) {
 	}
 	labor, err := validation.LaborValidation(&laborReq); if err != nil {
 		res := response.NewErrorResponse(
-			422, response.NewBaseMessage("labor validation error"),
+			422, response.NewBaseMessage("labor validation error"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -71,7 +71,7 @@ func CreateLabor(w http.ResponseWriter, r *http.Request) {
 	}
 	laborId, err := repository.CreateLabor(&labor); if err != nil {
 		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("error occurred creating labor"),
+			500, response.NewBaseMessage("error occurred creating labor"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -87,7 +87,7 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 	laborId, err := uuid.Parse(laborIdParam)
 	if err != nil {
 		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("invalid uuid"),
+			400, response.NewBaseMessage("invalid uuid"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -96,7 +96,7 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 	labor, err := repository.FindLaborByID(laborId)
 	if err != nil {
 		res := response.NewErrorResponse(
-			404, response.NewBaseMessage("labor not found"),
+			404, response.NewBaseMessage("labor not found"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -105,7 +105,7 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 	laborReq := request.LaborRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&laborReq); err != nil {
 		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("error occurred decoding labor"),
+			400, response.NewBaseMessage("error occurred decoding labor"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -113,7 +113,7 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 	}
 	laborValidated, err := validation.LaborValidation(&laborReq); if err != nil {
 		res := response.NewErrorResponse(
-			422, response.NewBaseMessage("labor validation error"),
+			422, response.NewBaseMessage("labor validation error"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -127,7 +127,7 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 
 	if err := repository.UpdateLabor(&labor); err != nil {
 		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("error occurred updating labor"),
+			500, response.NewBaseMessage("error occurred updating labor"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -142,7 +142,7 @@ func DeleteLabor(w http.ResponseWriter, r *http.Request) {
 	laborId, err := uuid.Parse(laborIdParam)
 	if err != nil {
 		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("invalid uuid"),
+			400, response.NewBaseMessage("invalid uuid"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
@@ -152,7 +152,7 @@ func DeleteLabor(w http.ResponseWriter, r *http.Request) {
 	query.ID = laborId
 	err = repository.DeleteLabor(&query); if err != nil {
 		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("invalid uuid"),
+			500, response.NewBaseMessage("invalid uuid"), nil,
 		)
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)

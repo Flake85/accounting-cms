@@ -13,6 +13,14 @@ export async function getServerSideProps(context) {
     const res = await fetch(`http://localhost:8080/client/${id}`)
     const client = await res.json()
 
+    if (client.error) {
+        return {
+            redirect: {
+                destination: "/404"
+            }
+        }
+    }
+
     return {
         props: { client }
     }

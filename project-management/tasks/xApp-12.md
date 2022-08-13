@@ -13,4 +13,4 @@ make a http response package for api responses.
     - [x] content-type to application/json
 - [x] make response package for building api response
     - [x] 1 response for building ok(200) responses. accepts a message to send in response
-    - [x] 1 response for building error responses. accepts error code and message to send in response
+    - [x] 1 response for building error responses. accepts error code, message, & optional data to send in response
