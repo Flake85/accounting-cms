@@ -10,13 +10,9 @@ type ApiResponseBody struct {
 	Error   interface{} `json:"error,omitempty"`
 }
 
-type BaseMessage struct {
-	Message string `json:"message"`
-}
-
 type ApiError struct {
-	BaseMessage
-	Data interface{} `json:"data,omitempty"`
+	Message string 		`json:"message,omitempty"`
+	Data 	interface{} `json:"data,omitempty"`
 }
 
 func NewOkResponse(data interface{}) ApiResponse {
@@ -27,18 +23,25 @@ func NewOkResponse(data interface{}) ApiResponse {
 	}
 }
 
-func NewErrorResponse(code int, message BaseMessage, data interface{}) ApiResponse {
+func NewErrorResponse(code int, message string) ApiResponse {
 	return ApiResponse{
 		Code: code,
 		Body: ApiResponseBody{
 			Error: ApiError{
-				BaseMessage: message,
-				Data: data,
+				Message: message,
 			},
 		},
 	}
 }
 
-func NewBaseMessage(message string) BaseMessage {
-	return BaseMessage{Message: message}
+func NewErrorResponseWithData(code int, message string, data interface{}) ApiResponse {
+	return ApiResponse{
+		Code: code,
+		Body: ApiResponseBody{
+			Error: ApiError{
+				Message: message,
+				Data: data,
+			},
+		},
+	}
 }

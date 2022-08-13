@@ -15,9 +15,7 @@ import (
 func GetInvoices(w http.ResponseWriter, r *http.Request) {
 	invoices, err := repository.GetAllInvoices()
 	if err != nil {
-		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("error occurred retrieving invoices"), nil,
-		)
+		res := response.NewErrorResponse(500, "error occurred retrieving invoices")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -30,18 +28,14 @@ func GetInvoice(w http.ResponseWriter, r *http.Request) {
 	invoiceIdParam := mux.Vars(r)["id"]
 	invoiceId, err := uuid.Parse(invoiceIdParam)
 	if err != nil {
-		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("invalid uuid"), nil,
-		)
+		res := response.NewErrorResponse(400, "invalid uuid")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	invoice, err := repository.FindInvoiceByID(invoiceId)
 	if err != nil {
-		res := response.NewErrorResponse(
-			404, response.NewBaseMessage("client not found"), nil,
-		)
+		res := response.NewErrorResponse(404, "client not found")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -53,18 +47,14 @@ func GetInvoice(w http.ResponseWriter, r *http.Request) {
 func CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	var invoice model.Invoice
 	if err := json.NewDecoder(r.Body).Decode(&invoice); err != nil {
-		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("invoice decode malfunction"), nil,
-		)
+		res := response.NewErrorResponse(400, "invoice decode malfunction")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	invoiceId, err := repository.CreateInvoice(&invoice) 
 	if err != nil {
-		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("error occurred creating invoice"), nil,
-		)
+		res := response.NewErrorResponse(500, "error occurred creating invoice")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -78,27 +68,21 @@ func UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 	invoiceIdParam := mux.Vars(r)["id"]
 	invoiceId, err := uuid.Parse(invoiceIdParam)
 	if err != nil {
-		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("error occurred creating invoice"), nil,
-		)
+		res := response.NewErrorResponse(400, "error occurred creating invoice")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	invoice, err := repository.FindInvoiceByID(invoiceId)
 	if err != nil {
-		res := response.NewErrorResponse(
-			404, response.NewBaseMessage("invoice not found"), nil,
-		)
+		res := response.NewErrorResponse(404, "invoice not found")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	req := model.Invoice{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("invoice decode malfunction"), nil,
-		)
+		res := response.NewErrorResponse(400, "invoice decode malfunction")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -106,9 +90,7 @@ func UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 	invoice.IsInvoiced = req.IsInvoiced
 	
 	if err := repository.UpdateInvoice(&invoice); err != nil {
-		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("error occurred updating expense"), nil,
-		)
+		res := response.NewErrorResponse(500, "error occurred updating expense")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -121,9 +103,7 @@ func DeleteInvoice(w http.ResponseWriter, r *http.Request) {
 	invoiceIdParam := mux.Vars(r)["id"]
 	invoiceId, err := uuid.Parse(invoiceIdParam)
 	if err != nil {
-		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("invalid uuid"), nil,
-		)
+		res := response.NewErrorResponse(400, "invalid uuid")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -131,9 +111,7 @@ func DeleteInvoice(w http.ResponseWriter, r *http.Request) {
 	query := model.Invoice{}
 	query.ID = invoiceId
 	err = repository.DeleteInvoice(&query); if err != nil {
-		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("invalid uuid"), nil,
-		)
+		res := response.NewErrorResponse(500, "invalid uuid")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return

@@ -16,9 +16,7 @@ import (
 func GetSales(w http.ResponseWriter, r *http.Request) {
 	sales, err := repository.GetAllSales()
 	if err != nil {
-		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("error occurred retrieveing sales"), nil,
-		)
+		res := response.NewErrorResponse(500, "error occurred retrieveing sales")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -31,18 +29,14 @@ func GetSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
-		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("invalid uuid"), nil,
-		)
+		res := response.NewErrorResponse(400, "invalid uuid")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	sale, err := repository.FindSaleByID(saleId)
 	if err != nil {
-		res := response.NewErrorResponse(
-			404, response.NewBaseMessage("sale not found"), nil,
-		)
+		res := response.NewErrorResponse(404, "sale not found")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -54,25 +48,19 @@ func GetSale(w http.ResponseWriter, r *http.Request) {
 func CreateSale(w http.ResponseWriter, r *http.Request) {
 	var saleReq request.SaleRequest
 	if err := json.NewDecoder(r.Body).Decode(&saleReq); err != nil {
-		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("sale decode malfunction"), nil,
-		)
+		res := response.NewErrorResponse(400, "sale decode malfunction")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	sale, err := validation.SaleValidation(&saleReq); if err != nil {
-		res := response.NewErrorResponse(
-			422, response.NewBaseMessage("sale validation error"), nil,
-		)
+		res := response.NewErrorResponse(422, "sale validation error")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	saleId, err := repository.CreateSale(&sale); if err != nil {
-		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("error occurred creating sale"), nil,
-		)
+		res := response.NewErrorResponse(500, "error occurred creating sale")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -86,35 +74,27 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
-		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("invalid uuid"), nil,
-		)
+		res := response.NewErrorResponse(400, "invalid uuid")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	sale, err := repository.FindSaleByID(saleId)
 	if err != nil {
-		res := response.NewErrorResponse(
-			404, response.NewBaseMessage("sale not found"), nil,
-		)
+		res := response.NewErrorResponse(404, "sale not found")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	saleReq := request.SaleRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&saleReq); err != nil {
-		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("error occurred decoding sale"), nil,
-		)
+		res := response.NewErrorResponse(400, "error occurred decoding sale")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
 	}
 	saleValidated, err := validation.SaleValidation(&saleReq); if err != nil {
-		res := response.NewErrorResponse(
-			422, response.NewBaseMessage("sale validation error"), nil,
-		)
+		res := response.NewErrorResponse(422, "sale validation error")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -126,9 +106,7 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 	sale.UnitCost = saleValidated.UnitCost
 
 	if err := repository.UpdateSale(&sale); err != nil {
-		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("error occurred updating sale"), nil,
-		)
+		res := response.NewErrorResponse(500, "error occurred updating sale")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -142,8 +120,7 @@ func DeleteSale(w http.ResponseWriter, r *http.Request) {
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
 		res := response.NewErrorResponse(
-			400, response.NewBaseMessage("invalid uuid"), nil,
-		)
+			400, "invalid uuid")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
@@ -151,9 +128,7 @@ func DeleteSale(w http.ResponseWriter, r *http.Request) {
 	query := model.Sale{}
 	query.ID = saleId
 	err = repository.DeleteSale(&query); if err != nil {
-		res := response.NewErrorResponse(
-			500, response.NewBaseMessage("invalid uuid"), nil,
-		)
+		res := response.NewErrorResponse(500, "invalid uuid")
 		w.WriteHeader(res.Code)
 		json.NewEncoder(w).Encode(res.Body)
 		return
