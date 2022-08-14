@@ -1,8 +1,13 @@
 package response
 
+import (
+	"encoding/json"
+	"net/http"
+)
+
 type ApiResponse struct {
-	Code int
-	Body ApiResponseBody
+	Code int			 `json:"code"`
+	Body ApiResponseBody `json:"body"`
 }
 
 type ApiResponseBody struct {
@@ -15,16 +20,18 @@ type ApiError struct {
 	Data 	interface{} `json:"data,omitempty"`
 }
 
-func NewOkResponse(data interface{}) ApiResponse {
-	return ApiResponse{
+func NewOkResponse(data interface{}, w http.ResponseWriter) {
+	res := ApiResponse{
+		Code: 200,
 		Body: ApiResponseBody{
 			Data: data,
 		},
 	}
+	json.NewEncoder(w).Encode(res)
 }
 
-func NewErrorResponse(code int, message string) ApiResponse {
-	return ApiResponse{
+func NewErrorResponse(code int, message string, w http.ResponseWriter) {
+	res := ApiResponse{
 		Code: code,
 		Body: ApiResponseBody{
 			Error: ApiError{
@@ -32,10 +39,12 @@ func NewErrorResponse(code int, message string) ApiResponse {
 			},
 		},
 	}
+	w.WriteHeader(res.Code)
+	json.NewEncoder(w).Encode(res)
 }
 
-func NewErrorResponseWithData(code int, message string, data interface{}) ApiResponse {
-	return ApiResponse{
+func NewErrorResponseWithData(code int, message string, data interface{}, w http.ResponseWriter) {
+	res := ApiResponse{
 		Code: code,
 		Body: ApiResponseBody{
 			Error: ApiError{
@@ -44,4 +53,6 @@ func NewErrorResponseWithData(code int, message string, data interface{}) ApiRes
 			},
 		},
 	}
+	w.WriteHeader(res.Code)
+	json.NewEncoder(w).Encode(res)
 }
