@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,19 +9,20 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
+	"server/db"
+	"server/flags"
 	"server/model"
 	"server/repository"
 	router "server/router"
 )
 
 func main() {
-	db, err := gorm.Open("postgres", "host=localhost port=54321 user=cms dbname=cms password=cms sslmode=disable")
-  	if err != nil {
-		fmt.Printf("db connection error: %v", err)
-  	}
+	flag.Parse()
+	db, err := gorm.Open("postgres", db.BuildDbConnectionStr(*flags.Host, *flags.Port, *flags.User, *flags.Password, *flags.DbName))
+  	if err != nil { fmt.Printf("db connection error: %v", err) }
   	defer db.Close()
-	db.AutoMigrate(&model.Client{})
 	repository.DB = db
+	db.AutoMigrate(&model.Client{}, &model.Expense{}, &model.Invoice{}, &model.Labor{}, &model.Sale{})
 	r := router.NewRouter()
     log.Fatal(http.ListenAndServe(":8080", r))
 }
