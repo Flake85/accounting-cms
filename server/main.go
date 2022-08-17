@@ -8,8 +8,6 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 
-	"github.com/rs/cors"
-
 	"server/model"
 	"server/repository"
 	router "server/router"
@@ -23,8 +21,6 @@ func main() {
   	defer db.Close()
 	db.AutoMigrate(&model.Client{})
 	repository.DB = db
-	r := router.NewRouter()	
-	handler := cors.Default().Handler(r)
-
-    log.Fatal(http.ListenAndServe(":8080", handler))
+	r := router.NewRouter()
+    log.Fatal(http.ListenAndServe(":8080", r))
 }

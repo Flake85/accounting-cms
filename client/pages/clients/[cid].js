@@ -1,9 +1,9 @@
 function Client({ client }) {
     return (
         <div>
-            <p>id: {client.id}</p>
-            <p>name: {client.name}</p>
-            <p>created: {client.createdAt}</p>
+            <p>name: {client.data.name}</p>
+            <p>email: {client.data.email}</p>
+            <p>address: {client.data.address}</p>
         </div>
     )
 }
@@ -13,6 +13,13 @@ export async function getServerSideProps(context) {
     const res = await fetch(`http://localhost:8080/client/${id}`)
     const client = await res.json()
 
+    if (client.error) {
+        return {
+            redirect: {
+                destination: "/404"
+            }
+        }
+    }
     return {
         props: { client }
     }

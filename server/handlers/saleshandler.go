@@ -2,12 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"server/model"
 	"server/repository"
 	"server/request"
+	"server/response"
 	"server/validation"
 
 	"github.com/google/uuid"
@@ -17,84 +16,64 @@ import (
 func GetSales(w http.ResponseWriter, r *http.Request) {
 	sales, err := repository.GetAllSales()
 	if err != nil {
-		log.Println("error occurred getting sales")
-		w.WriteHeader(500)
-		fmt.Fprintln(w, "error occurred retrieving sales")
+		response.NewErrorResponse(500, "error occurred retrieveing sales", w)
 		return
 	}
-	json.NewEncoder(w).Encode(&sales)
+	response.NewOkResponse(&sales, w)
 }
 
 func GetSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
-		log.Printf("%v, is not a valid uuid.", saleIdParam)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "invalid uuid")
+		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
 	sale, err := repository.FindSaleByID(saleId)
 	if err != nil {
-		log.Printf("sale: %v, not found", saleIdParam)
-		w.WriteHeader(404)
-		fmt.Fprintln(w, "sale not found")
+		response.NewErrorResponse(404, "sale not found", w)
 		return
 	}
-	json.NewEncoder(w).Encode(&sale)
+	response.NewOkResponse(&sale, w)
 }
 
 func CreateSale(w http.ResponseWriter, r *http.Request) {
 	var saleReq request.SaleRequest
 	if err := json.NewDecoder(r.Body).Decode(&saleReq); err != nil {
-		log.Printf("sale decode malfunction: %v", err)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "an error occurred creating sale")
+		response.NewErrorResponse(400, "sale decode malfunction", w)
 		return
 	}
 	sale, err := validation.SaleValidation(&saleReq); if err != nil {
-		log.Println("validation error. sale not created")
-		w.WriteHeader(422)
-		fmt.Fprintf(w, "sale validation error: %v", err)
+		response.NewErrorResponse(422, "sale validation error", w)
 		return
 	}
 	saleId, err := repository.CreateSale(&sale); if err != nil {
-		log.Printf("sale: %v, not created", saleId)
-		w.WriteHeader(500)
-		fmt.Fprintf(w, "an error occurred creating sale: %v", err)
+		response.NewErrorResponse(500, "error occurred creating sale", w)
 		return
 	}
 	sale.ID = saleId
-	json.NewEncoder(w).Encode(&sale)
+	response.NewOkResponse(&sale, w)
 }
 
 func UpdateSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
-		log.Printf("%v, is not a valid uuid.", saleIdParam)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "an error occurred updating sale")
+		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
 	sale, err := repository.FindSaleByID(saleId)
 	if err != nil {
-		log.Printf("sale not found with uuid: %v", saleId)
-		w.WriteHeader(404)
-		fmt.Fprintln(w, "sale not found")
+		response.NewErrorResponse(404, "sale not found", w)
 		return
 	}
 	saleReq := request.SaleRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&saleReq); err != nil {
-		log.Print("sale decode malfunction")
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "an error occurred updating sale")
+		response.NewErrorResponse(400, "error occurred decoding sale", w)
 		return
 	}
 	saleValidated, err := validation.SaleValidation(&saleReq); if err != nil {
-		log.Println("validation error. sale not created")
-		w.WriteHeader(422)
-		fmt.Fprintf(w, "sale validation error: %v", err)
+		response.NewErrorResponse(422, "sale validation error", w)
 		return
 	}
 	sale.ClientId = saleValidated.ClientId
@@ -104,29 +83,24 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 	sale.UnitCost = saleValidated.UnitCost
 
 	if err := repository.UpdateSale(&sale); err != nil {
-		log.Printf("error occurred updating sale id: %v", saleId)
-		w.WriteHeader(500)
-		fmt.Fprintln(w, "an error occurred updating sale")
+		response.NewErrorResponse(500, "error occurred updating sale", w)
 		return
 	}
-	json.NewEncoder(w).Encode(&sale)
+	response.NewOkResponse(&sale, w)
 }
 
 func DeleteSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
-		log.Printf("%v, is not a valid uuid.", saleIdParam)
-		w.WriteHeader(400)
-		fmt.Fprintln(w, "invalid uuid")
+		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
 	query := model.Sale{}
 	query.ID = saleId
 	err = repository.DeleteSale(&query); if err != nil {
-		w.WriteHeader(500)
-		fmt.Fprintln(w, "invalid uuid")
+		response.NewErrorResponse(500, "invalid uuid", w)
 		return
 	}
-	json.NewEncoder(w).Encode(&query)
+	response.NewOkResponse(&query, w)
 }

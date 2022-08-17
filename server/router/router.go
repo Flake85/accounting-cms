@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"server/middleware"
 
 	"github.com/gorilla/mux"
 )
@@ -17,7 +18,7 @@ func NewRouter () *mux.Router {
 				Methods(route.Method).
 				Path(route.Pattern).
 				Name(route.Name).
-				Handler(handler)
+				Handler(middleware.AddDefaultCORSHeaders(handler))
 		}
 	}
 	return router
