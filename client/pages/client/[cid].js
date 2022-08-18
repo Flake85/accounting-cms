@@ -10,10 +10,10 @@ function Client({ client }) {
 
 export async function getServerSideProps(context) {
     const id = context.query.cid
-    const res = await fetch(`http://localhost:8080/client/${id}`)
+    const res = await fetch(`${process.env.HOST}/client/${id}`)
     const client = await res.json()
 
-    if (client.error) {
+    if (client.error.message) {
         return {
             redirect: {
                 destination: "/404"

@@ -14,3 +14,4 @@ use CLI flags to set env variables
 - [x] Create/Retrieve flags
     - [x] create default flags (Makefile golang command will over-ride)
     - [x] the database connection string (main.go) should be a function returning the database connection string using the flags either sent by makefile command, manual input command or default.  
+- [x] Create frontend env file to pass variables (rest api url)
