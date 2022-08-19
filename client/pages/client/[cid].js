@@ -10,7 +10,7 @@ function Client({ client }) {
 
 export async function getServerSideProps(context) {
     const id = context.query.cid
-    const res = await fetch(`${process.env.HOST}/client/${id}`)
+    const res = await fetch(`${process.env.BASEURL}/client/${id}`)
     const client = await res.json()
 
     if (client.error.message) {

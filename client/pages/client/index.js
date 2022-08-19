@@ -13,7 +13,7 @@ function Clients({ clients }) {
 }
 
 export async function getServerSideProps() {
-    const res = await fetch(`${process.env.HOST}/client`)
+    const res = await fetch(`${process.env.BASEURL}/client`)
     const clients = await res.json()
 
     return { props: { clients } }
