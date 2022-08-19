@@ -5,7 +5,7 @@ function Clients({ clients }) {
         <ul>
             {clients.data.map((client) => (
                 <li key={client.id}>
-                    <Link href={`/clients/`+client.id}><a>{ client.name }</a></Link>
+                    <Link href={`/client/`+client.id}><a>{ client.name }</a></Link>
                 </li>
             ))}
         </ul>
@@ -13,12 +13,10 @@ function Clients({ clients }) {
 }
 
 export async function getServerSideProps() {
-    const res = await fetch('http://localhost:8080/client')
+    const res = await fetch(`${process.env.BASEURL}/client`)
     const clients = await res.json()
 
-    return {
-        props: { clients }
-    }
+    return { props: { clients } }
 }
 
 export default Clients
