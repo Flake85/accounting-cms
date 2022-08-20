@@ -1,11 +1,14 @@
 import Navbar from "./navbar";
 import Footer from "./footer";
+import Container from "react-bootstrap/Container";
 
 export default function Layout({ children }) {
     return (
         <div>
             <Navbar />
-            <main className="container">{ children }</main>
+            <Container>
+                <main>{ children }</main>
+            </Container>
             <Footer />
         </div>
     )
