@@ -1,15 +1,16 @@
+import ListGroup from 'react-bootstrap/ListGroup';
 import Link from 'next/link'
 
-function Clients({ clients }) {
-    return (
-        <ul>
+export default function Clients({ clients }) {
+  return (
+        <ListGroup as="ul" numbered>
             {clients.data.map((client) => (
-                <li key={client.id}>
+                <ListGroup.Item as="li" action key="client.id">
                     <Link href={`/client/`+client.id}><a>{ client.name }</a></Link>
-                </li>
+                </ListGroup.Item>
             ))}
-        </ul>
-    )
+        </ListGroup>
+  );
 }
 
 export async function getServerSideProps() {
@@ -18,5 +19,3 @@ export async function getServerSideProps() {
 
     return { props: { clients } }
 }
-
-export default Clients
