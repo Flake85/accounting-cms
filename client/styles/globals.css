@@ -15,7 +15,9 @@ a {
   box-sizing: border-box;
 }
 
-/* used for testing navbar and footer properties */
-/* main {
-  height: 1000px;
-} */
+
+main {
+  /* used for testing navbar and footer properties */
+  /* height: 1000px; */
+  margin-top: 56px;
+}
