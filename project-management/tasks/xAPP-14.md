@@ -12,3 +12,4 @@ Bring in boostrap 5/react-bootstrap and do basic ui layout
     - [x] Make a bootstrap navbar for the top
         - [x] include links to basic entity pages (disable links to pages that don't exist yet)
     - [x] Make a footer component
+- [x] Bring in bootstrap icons and edit dashboard page route: "/"

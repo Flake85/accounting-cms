@@ -14,4 +14,4 @@ react:
 	cd client; yarn run dev
 
 run:
-	make docker & make golang & make react
+	make dockers && make golang && make react
