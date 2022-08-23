@@ -23,7 +23,7 @@ export default function Client({ client }) {
 
 export async function getServerSideProps(context) {
     const id = context.query.cid
-    const res = await fetch(`${process.env.BASEURL}/client/${id}`)
+    const res = await fetch(`${process.env.REACT_APP_BASEURL}/client/${id}`)
     const client = await res.json()
     return { props: { client } }
 }
