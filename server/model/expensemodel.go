@@ -2,6 +2,6 @@ package model
 
 type Expense struct {
 	BaseModel
-	Description string
-	Cost   		float64     
+	Description string  `json:"description"`
+	Cost   		float64 `json:"cost"`    
 }

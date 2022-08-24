@@ -33,7 +33,7 @@ export default function Home() {
                 </Card.Link>
               </Col>
               <Col>
-                <Card.Link href="#">
+                <Card.Link href="/expense">
                   <h3><i class="bi-cash-coin"></i></h3>
                   <h4>Expenses</h4>
                 </Card.Link>

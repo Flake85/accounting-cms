@@ -15,7 +15,7 @@ export default function NavigationBar() {
             <Nav.Link className="disabled" href="/invoice">Invoices</Nav.Link>
             <Nav.Link className="disabled" href="/labor">Labor</Nav.Link>
             <Nav.Link className="disabled" href="/sale">Sales</Nav.Link>
-            <Nav.Link className="disabled" href="/expense">Expenses</Nav.Link>
+            <Nav.Link href="/expense">Expenses</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
