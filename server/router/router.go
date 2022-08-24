@@ -14,8 +14,12 @@ func NewRouter () *mux.Router {
 		for _, route := range route {
 		var handler http.HandlerFunc
 		handler = route.HandlerFunc
+		methods := []string{route.Method}
+		if route.Method == "PUT" || route.Method == "DELETE" {
+			methods = append(methods, "OPTIONS")
+		}
 		router.
-				Methods(route.Method).
+				Methods(methods...).
 				Path(route.Pattern).
 				Name(route.Name).
 				Handler(middleware.AddDefaultCORSHeaders(handler))
