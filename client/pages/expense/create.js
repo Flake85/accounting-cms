@@ -17,10 +17,15 @@ export default function NewExpense({ url }) {
             description: expenseDescription,
             cost: parseFloat(expenseCost),
         }
-        const resp = await fetch(`${url}/expense`, {
+        await fetch(`${url}/expense`, {
             method: 'POST',
             mode: 'cors',
             body: JSON.stringify(newExpense)
+        })
+        .then(async (res) => {
+            if(res.ok) return res.json()
+            const json = await res.json();
+            throw new Error(json.error.message);
         })
         .then(() => {
             alert("successfully submitted new expense: "+newExpense.description)
@@ -30,25 +35,29 @@ export default function NewExpense({ url }) {
     }
 
     return (
-        <Form onSubmit={submitExpense}>
-            <Form.Group className="mb-3">
-                <Form.Label>Description</Form.Label>
-                <Form.Control placeholder="Enter expense description" 
-                              value={expenseDescription}
-                              onChange={handleDescriptionChange}/>
-            </Form.Group>
-            <Form.Group className="mb-3">
-                <Form.Label>Cost</Form.Label>
-                <Form.Control type="number"
-                              step={0.01}  
-                              placeholder="Enter cost"
-                              value={expenseCost}
-                              onChange={handleCostChange} />
-            </Form.Group>
-            <Button variant="primary" type="submit">
-                Submit
-            </Button>
-        </Form>
+        <div>
+            <h1>Expense</h1> 
+            <hr />
+            <Form onSubmit={submitExpense}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control placeholder="Enter expense description" 
+                                value={expenseDescription}
+                                onChange={handleDescriptionChange}/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Cost</Form.Label>
+                    <Form.Control type="number"
+                                step={0.01}  
+                                placeholder="Enter cost"
+                                value={expenseCost}
+                                onChange={handleCostChange} />
+                </Form.Group>
+                <Button variant="primary" type="submit">
+                    Submit
+                </Button>
+            </Form>
+        </div>
     )
 }
 

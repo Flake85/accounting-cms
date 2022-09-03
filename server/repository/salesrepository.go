@@ -9,7 +9,7 @@ import (
 
 func FindSaleByID(saleId uuid.UUID) (model.Sale, error) {
 	sale := model.Sale{}
-	if DB.Where("id = ?", saleId).Find(&sale).Error != nil {
+	if DB.Where("id = ?", saleId).Preload("Client").Preload("Invoice").Preload("Invoice.Client").Find(&sale).Error != nil {
 		return sale, fmt.Errorf("Cannot find Sale by id: %w", DB.Error)
 	}
 	return sale, nil
@@ -17,8 +17,26 @@ func FindSaleByID(saleId uuid.UUID) (model.Sale, error) {
 
 func GetAllSales() ([]model.Sale, error) {
 	sales := make([]model.Sale, 0)
-	if DB.Find(&sales).Error != nil {
+	if DB.Preload("Client").Preload("Invoice").Preload("Invoice.Client").Find(&sales).Error != nil {
 		return sales, fmt.Errorf("could not get Sales from db: %w", DB.Error)
+	}
+	return sales, nil
+}
+
+func GetSalesByInvoiceId(invoiceId uuid.UUID) ([]model.Sale, error) {
+	sales := make([]model.Sale, 0)
+	if DB.Where("invoice_id = ?", invoiceId).Preload("Client").Find(&sales).Error != nil {
+		return sales, fmt.Errorf("could not retrieve sales from db: %w", DB.Error)
+	}
+	return sales, nil
+}
+
+// TODO: just returns an empty array for now but it does update the database
+func UpdateSalesByClientId(clientId uuid.UUID, invoiceId uuid.UUID) ([]model.Sale, error) {
+	sales := make([]model.Sale, 0)
+	sale := model.Sale{InvoiceID: &invoiceId}
+	if DB.Model(sale).Where("client_id = ? AND invoice_id IS NULL", clientId).Select("invoice_id").Updates(sale).Error != nil {
+		return sales, fmt.Errorf("could not update sales by client id: %w", DB.Error)
 	}
 	return sales, nil
 }

@@ -4,5 +4,5 @@ import "github.com/google/uuid"
 
 type InvoiceRequest struct {
 	ClientId   uuid.UUID `json:"clientId"`	
-	IsInvoiced bool 	 `json:"IsInvoiced"`
+	IsPaid 	   bool 	 `json:"IsPaid"`
 }

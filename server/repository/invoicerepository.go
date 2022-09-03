@@ -9,7 +9,7 @@ import (
 
 func FindInvoiceByID(invoiceId uuid.UUID) (model.Invoice, error) {
 	invoice := model.Invoice{}
-	if DB.Where("id = ?", invoiceId).Find(&invoice).Error != nil {
+	if DB.Where("id = ?", invoiceId).Preload("Client").Find(&invoice).Error != nil {
 		return invoice, fmt.Errorf("cannot find invoice by id: %w", DB.Error)
 	}
 	return invoice, nil
@@ -17,7 +17,7 @@ func FindInvoiceByID(invoiceId uuid.UUID) (model.Invoice, error) {
 
 func GetAllInvoices() ([]model.Invoice, error) {
 	invoices := make([]model.Invoice, 0)
-	if DB.Find(&invoices).Error != nil {
+	if DB.Preload("Client").Find(&invoices).Error != nil {
 		return invoices, fmt.Errorf("could not get invoices from db: %w", DB.Error)
 	}
 	return invoices, nil

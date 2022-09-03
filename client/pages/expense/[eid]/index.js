@@ -1,16 +1,46 @@
 import Alert from 'react-bootstrap/Alert'
+import Button from 'react-bootstrap/Button'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
 
-export default function Expense({ expense }) {
+export default function Expense({ url, expense }) {
+    const router = useRouter()
+    const [show, setShow] = useState(false)
+
+    function deleteExpense() {
+        fetch(`${url}/expense/${expense.data.id}`, {
+            method: 'DELETE',
+            mode: 'cors'
+        })
+        .then(async (res) => {
+            if(res.ok) return res.json()
+            const json = await res.json();
+            throw new Error(json.error.message);
+        })
+        .then(() => {
+            alert("Successfully deleted expense")
+            router.push("/expense")
+        })
+        .catch(err => alert(err))
+    }
     return (
         <div>
-            { expense.data &&
-                <div>
-                    <p>description: {expense.data.description}</p>
-                    <p>cost: {expense.data.cost}</p>
+            <h1>Expense</h1>
+            <hr />
+            <Alert show={show} variant="warning" dismissible onClose={() => setShow(false)}>
+                <Alert.Heading>Warning</Alert.Heading>
+                <p>Are you sure you want to delete "{ expense.data.description }"?</p>
+                <Button className="me-1" onClick={deleteExpense}>Confirm</Button>
+                <Button onClick={() => setShow(false)}>Cancel</Button>
+            </Alert>
+            { expense.data
+                ? <div>
+                    <p><strong>Description: </strong>{expense.data.description}</p>
+                    <p><strong>Cost: </strong>{expense.data.cost}</p>
+                    <Button href={`/expense/${expense.data.id}/update`} className="me-1">Update Expense</Button>
+                    <Button variant="danger" onClick={() => setShow(true)}>Delete</Button>
                 </div>
-            }
-            { expense.error.message &&
-                <Alert variant="danger">
+                : <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>
                     <hr />
                     <p>{ expense.error.message }</p>
@@ -22,7 +52,8 @@ export default function Expense({ expense }) {
 
 export async function getServerSideProps(context) {
     const id = context.query.eid
-    const res = await fetch(`${process.env.REACT_APP_BASEURL}/expense/${id}`)
+    const url = process.env.REACT_APP_BASEURL
+    const res = await fetch(`${url}/expense/${id}`)
     const expense = await res.json()
-    return { props: { expense } }
+    return { props: { url, expense } }
 }
