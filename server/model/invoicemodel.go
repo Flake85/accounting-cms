@@ -6,6 +6,13 @@ import (
 
 type Invoice struct {
 	BaseModel
-	ClientId   uuid.UUID
-	IsInvoiced bool
+	Description string	  `json:"description"`
+	ClientID    uuid.UUID `json:"clientId" gorm:"TYPE:uuid REFERENCES clients"`
+	Client	    Client	  `json:"client" gorm:"constraint:OnDelete:CASCADE;"`
+	Sales		*[]Sale   `json:"sales"`
+	SalesTotal	float64   `json:"salesTotal"`
+	Labors		*[]Labor  `json:"labors"`
+	LaborsTotal float64   `json:"laborsTotal"`
+	GrandTotal	float64	  `json:"grandTotal"`
+	IsPaid  	bool	  `json:"isPaid"`
 }

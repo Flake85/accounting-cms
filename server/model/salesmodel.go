@@ -4,9 +4,12 @@ import "github.com/google/uuid"
 
 type Sale struct {
 	BaseModel
-	ClientId	uuid.UUID
-	InvoiceId	*uuid.UUID
-	Description string
-	Units		int8
-	UnitCost	float64
+	Description string	   `json:"description"`
+	ClientID	uuid.UUID  `json:"clientId" gorm:"TYPE:uuid REFERENCES clients"`
+	Client	    Client	   `json:"client" gorm:"constraint:OnDelete:CASCADE;"`
+	InvoiceID	*uuid.UUID `json:"invoiceId,omitempty" gorm:"TYPE:uuid REFERENCES invoices"`
+	Invoice		*Invoice   `json:"invoice,omitempty" gorm:"constraint:OnDelete:SET NULL;"`
+	Units		float64	   `json:"units"`
+	UnitCost	float64	   `json:"unitCost"`
+	Total		float64	   `json:"total"`	
 }

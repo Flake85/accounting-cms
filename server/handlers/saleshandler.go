@@ -47,6 +47,25 @@ func CreateSale(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(422, "sale validation error", w)
 		return
 	}
+	sale.Client, err = repository.FindClientByID(sale.ClientID); if err != nil {
+		response.NewErrorResponse(500, "error occured finding client", w)
+		return
+	}
+	if sale.InvoiceID != nil {
+		invoice, err := repository.FindInvoiceByID(*sale.InvoiceID); 
+		if err != nil {
+			response.NewErrorResponse(500, "error occured finding invoice", w)
+			return
+		}
+		if sale.ClientID != invoice.ClientID {
+			response.NewErrorResponse(500, "sale's client id must match invoice's client id", w)
+			return
+		}
+		invoice.Client = sale.Client
+		sale.Invoice = &invoice
+	}
+	total := sale.Units * sale.UnitCost
+	sale.Total = total
 	saleId, err := repository.CreateSale(&sale); if err != nil {
 		response.NewErrorResponse(500, "error occurred creating sale", w)
 		return
@@ -76,12 +95,32 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(422, "sale validation error", w)
 		return
 	}
-	sale.ClientId = saleValidated.ClientId
-	sale.InvoiceId = saleValidated.InvoiceId
+	sale.ClientID = saleValidated.ClientID
+	sale.InvoiceID = saleValidated.InvoiceID
 	sale.Description = saleValidated.Description
 	sale.Units = saleValidated.Units
 	sale.UnitCost = saleValidated.UnitCost
+	
+	total := sale.Units * sale.UnitCost
+	sale.Total = total
 
+	if sale.InvoiceID != nil {
+		invoice, err := repository.FindInvoiceByID(*sale.InvoiceID); 
+		if err != nil {
+			response.NewErrorResponse(500, "error occured finding invoice", w)
+			return
+		}
+		if sale.ClientID != invoice.ClientID {
+			response.NewErrorResponse(500, "sale's client id must match invoice's client id", w)
+			return
+		}
+		invoice.Client = sale.Client
+		sale.Invoice = &invoice
+	}
+	sale.Client, err = repository.FindClientByID(sale.ClientID); if err != nil {
+		response.NewErrorResponse(500, "error occured finding client", w)
+		return
+	}
 	if err := repository.UpdateSale(&sale); err != nil {
 		response.NewErrorResponse(500, "error occurred updating sale", w)
 		return

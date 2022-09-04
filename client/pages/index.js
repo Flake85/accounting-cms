@@ -10,31 +10,31 @@ export default function Home() {
             <Row>
               <Col>
                 <Card.Link href="/client">
-                  <h3><i class="bi-people"></i></h3>
+                  <h3><i className="bi-people"></i></h3>
                   <h4>Clients</h4>
                 </Card.Link>
               </Col>
               <Col>
-                <Card.Link href="#">
-                  <h3><i class="bi-receipt"></i></h3>
+                <Card.Link href="/invoice">
+                  <h3><i className="bi-receipt"></i></h3>
                   <h4>Invoices</h4>
                 </Card.Link>
               </Col>
               <Col>
-                <Card.Link href="#">
-                  <h3><i class="bi-hammer"></i></h3>
+                <Card.Link href="/labor">
+                  <h3><i className="bi-hammer"></i></h3>
                   <h4>Labor</h4>
                 </Card.Link>
               </Col>
               <Col>
-                <Card.Link href="#">
-                  <h3><i class="bi-receipt-cutoff"></i></h3>
+                <Card.Link href="/sale">
+                  <h3><i className="bi-receipt-cutoff"></i></h3>
                   <h4>Sales</h4>
                 </Card.Link>
               </Col>
               <Col>
                 <Card.Link href="/expense">
-                  <h3><i class="bi-cash-coin"></i></h3>
+                  <h3><i className="bi-cash-coin"></i></h3>
                   <h4>Expenses</h4>
                 </Card.Link>
               </Col>

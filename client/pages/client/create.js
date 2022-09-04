@@ -13,50 +13,54 @@ export default function NewClient({ url }) {
     function handleEmailChange(event) { setClientEmail(event.target.value) }
     function handleAddressChange(event) { setClientAddress(event.target.value) }
 
-    const submitClient = async event => {
+    async function submitClient(event) {
         event.preventDefault();
         var newClient = {
             name: clientName,
             email: clientEmail,
-            address: clientAddress,
+            address: clientAddress
         }
-        const resp = await fetch(`${url}/client`, {
-            method: 'POST',
-            mode: 'cors',
-            body: JSON.stringify(newClient)
-        })
-        .then(() => {
-            alert("successfully submitted new client: "+ newClient.name)
+        try {
+            const res = await fetch(`${url}/client`, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify(newClient)
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully created new client: " + data.data.name)
             router.push('/client')
-        })
-        .catch(err => alert(err))
+        } catch(err) { err => alert(err) }
     }
 
     return (
-        <Form onSubmit={submitClient}>
-            <Form.Group className="mb-3">
-                <Form.Label>Name</Form.Label>
-                <Form.Control placeholder="Enter client name" 
-                              value={clientName}
-                              onChange={handleNameChange}/>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-                <Form.Label>Email</Form.Label>
-                <Form.Control type="email" 
-                              placeholder="Enter client email"
-                              value={clientEmail}
-                              onChange={handleEmailChange} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-                <Form.Label>Address</Form.Label>
-                <Form.Control placeholder="Enter client address"
-                              value={clientAddress}
-                              onChange={handleAddressChange} />
-            </Form.Group>
-            <Button variant="primary" type="submit">
-                Submit
-            </Button>
-        </Form>
+        <div>
+            <h1>Create Client</h1>
+            <hr />
+            <Form onSubmit={submitClient}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control placeholder="Enter client name" 
+                                value={clientName}
+                                onChange={handleNameChange}/>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control type="email" 
+                                placeholder="Enter client email"
+                                value={clientEmail}
+                                onChange={handleEmailChange} />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Address</Form.Label>
+                    <Form.Control placeholder="Enter client address"
+                                value={clientAddress}
+                                onChange={handleAddressChange} />
+                </Form.Group>
+                <Button type="submit" className="me-1">Submit</Button>
+                <Button href={`/client`}>Cancel</Button>
+            </Form>
+        </div>
     )
 }
 

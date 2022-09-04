@@ -11,45 +11,47 @@ export default function UpdateExpense({ expense, url }) {
     const handleDescriptionChange = event => setExpenseDescription(event.target.value)
     const handleCostChange = event => setExpenseCost(event.target.value)
     
-    const submitExpense = async event => {
+    async function submitExpense(event) {
         event.preventDefault();
-        var newExpense = {
+        var updatedExpense = {
             description: expenseDescription,
             cost: parseFloat(expenseCost)
         }
-        await fetch(`${url}/expense/${expense.data.id}`, {
+        const res = await fetch(`${url}/expense/${expense.data.id}`, {
             method: 'PUT',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newExpense)
+            body: JSON.stringify(updatedExpense)
         })
-        .then(() => {
-            alert("successfully updated expense: " + newExpense.description)
-            router.push(`/expense/${expense.data.id}`)
-        })
-        .catch(err => alert(err))
+        const data = await res.json()
+        if(!res.ok) throw new Error(data.error.message)
+        alert("Successfully updated expense: " + data.data.description)
+        router.push(`/expense/${data.data.id}`)
     }
 
     return (
-        <Form onSubmit={submitExpense}>
-            <Form.Group className="mb-3">
-                <Form.Label>Description</Form.Label>
-                <Form.Control placeholder="Enter expense description" 
-                              value={expenseDescription}
-                              onChange={handleDescriptionChange}/>
-            </Form.Group>
-            <Form.Group className="mb-3">
-                <Form.Label>Cost</Form.Label>
-                <Form.Control type="number"
-                              step={0.01}  
-                              placeholder="Enter cost"
-                              value={expenseCost}
-                              onChange={handleCostChange} />
-            </Form.Group>
-            <Button variant="primary" type="submit">
-                Submit
-            </Button>
-        </Form>
+        <div>
+            <h1>Update Expense</h1> 
+            <hr />
+            <Form onSubmit={submitExpense}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control placeholder="Enter expense description" 
+                                value={expenseDescription}
+                                onChange={handleDescriptionChange}/>
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Cost</Form.Label>
+                    <Form.Control type="number"
+                                step={0.01}  
+                                placeholder="Enter cost"
+                                value={expenseCost}
+                                onChange={handleCostChange} />
+                </Form.Group>
+                <Button variant="primary" type="submit" className="me-1">Submit</Button>
+                <Button href={`/expense`}>Cancel</Button>
+            </Form>
+        </div>
     )
 }
 

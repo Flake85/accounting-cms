@@ -1,17 +1,44 @@
 import Alert from 'react-bootstrap/Alert'
+import Button from 'react-bootstrap/Button'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
 
-export default function Client({ client }) {
+export default function Client({ url, client }) {
+    const router = useRouter()
+    const [show, setShow] = useState(false)
+    
+    async function deleteClient() {
+        try {
+            const res = await fetch(`${url}/client/${client.data.id}`, {
+                method: 'DELETE',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully deleted Client ID: " + data.data.id)
+            router.push(`/client`)
+        } catch(err) { err => alert(err) }
+    }
+
     return (
         <div>
-            { client.data &&
-                <div>
-                    <p>name: {client.data.name}</p>
-                    <p>email: {client.data.email}</p>
-                    <p>address: {client.data.address}</p>
+            <h1>Client</h1>
+            <hr />
+            <Alert show={show} variant="warning" dismissible onClose={() => setShow(false)}>
+                <Alert.Heading>Warning</Alert.Heading>
+                <p>Are you sure you want to delete "{ client.data.name }"?</p>
+                <Button className="me-1" onClick={deleteClient}>Confirm</Button>
+                <Button onClick={() => setShow(false)}>Cancel</Button>
+            </Alert>
+            { client.data
+                ? <div>
+                    <p><strong>Name: </strong>{client.data.name}</p>
+                    <p><strong>Email: </strong>{client.data.email}</p>
+                    <p><strong>Address: </strong>{client.data.address}</p>
+                    <Button href={`/client/${client.data.id}/update`} className="me-1">Edit Client</Button>
+                    <Button variant="danger" onClick={() => setShow(true)}>Delete</Button>
                 </div>
-            }
-            { client.error.message &&
-                <Alert variant="danger">
+                : <Alert variant="danger">
                     <Alert.Heading>Error</Alert.Heading>
                     <hr />
                     <p>{ client.error.message }</p>
@@ -23,7 +50,8 @@ export default function Client({ client }) {
 
 export async function getServerSideProps(context) {
     const id = context.query.cid
-    const res = await fetch(`${process.env.REACT_APP_BASEURL}/client/${id}`)
+    const url = process.env.REACT_APP_BASEURL
+    const res = await fetch(`${url}/client/${id}`)
     const client = await res.json()
-    return { props: { client } }
+    return { props: { url, client } }
 }

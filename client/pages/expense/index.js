@@ -12,20 +12,23 @@ export default function Expenses({ expenses, url }) {
 
     function confirmDelete(expense) { setShow(true); setTarget(expense) }
     function closeAlert() { setShow(false); setTarget("") }
-
-    function deleteExpense() {
-        fetch(`${url}/expense/${target.id}`, {
-            method: 'DELETE',
-            mode: 'cors'
-        })
-        .then(() => {
-            alert("Successfully deleted ", target.name)
+    
+    async function deleteExpense() {
+        try {
+            const res = await fetch(`${url}/expense/${target.id}`, {
+                method: 'DELETE',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully deleted expense id: " + data.data.id)
             router.reload(window.location.pathname)
-        })
-        .catch(err => alert(err))
+        } catch(err) { err => err }
     }
+
     return (
         <div>
+            <h1>Expenses</h1>
             <Alert show={show} variant="warning" dismissible onClose={closeAlert}>
                 <Alert.Heading>Warning</Alert.Heading>
                 <p>Are you sure you want to delete "{ target.description }"?</p>
@@ -33,28 +36,35 @@ export default function Expenses({ expenses, url }) {
                 <Button onClick={deleteExpense}>Confirm</Button>
                 <Button onClick={closeAlert}>Cancel</Button>
             </Alert>
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Description</th>
-                        <th>Cost</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {expenses.data.map((expense, i) => (
-                        <tr key={expense.id}>
-                            <td>{ i + 1 }</td>
-                            <td><Link href={`/expense/${expense.id}`}><a>{ expense.description }</a></Link></td>
-                            <td>{ expense.cost }</td>
-                            <td>
-                                <Link href={`/expense/${expense.id}/update`}><a><i className="bi-pencil-square text-success"></i></a></Link>
-                                <Link href={`#`}><a onClick={() => confirmDelete(expense)}><i className="bi-trash text-danger"></i></a></Link>
-                            </td>
+            { expenses.data.length
+                ? <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Description</th>
+                            <th>Cost</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {expenses.data.map((expense, i) => (
+                            <tr key={expense.id}>
+                                <td>{ i + 1 }</td>
+                                <td><Link href={`/expense/${expense.id}`}><a>{ expense.description }</a></Link></td>
+                                <td>{ expense.cost }</td>
+                                <td>
+                                    <Link href={`/expense/${expense.id}/update`}><a><i className="bi-pencil-square text-success"></i></a></Link>
+                                    <Link href={`#`}><a onClick={() => confirmDelete(expense)}><i className="bi-trash text-danger"></i></a></Link>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+                : <div>
+                    <hr />
+                    <p>No Expenses Added.</p>
+                </div>
+                }
             <Button href="/expense/create">Add Expense</Button>
         </div>
     );

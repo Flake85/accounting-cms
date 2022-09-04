@@ -36,4 +36,28 @@ var clientRoutes = Routes{
 		Pattern: "/client/{id}",
 		HandlerFunc: handlers.DeleteClient,
 	},
+	model.Route{
+		Name: "GetDeletedClients",
+		Method: "GET",
+		Pattern: "/client_deleted",
+		HandlerFunc: handlers.GetDeletedClients,
+	},
+	model.Route{
+		Name: "GetDeletedClient",
+		Method: "GET",
+		Pattern: "/client_deleted/{id}",
+		HandlerFunc: handlers.GetDeletedClient,
+	},
+	model.Route{
+		Name: "UnDeleteClient",
+		Method: "PUT",
+		Pattern: "/client_deleted/{id}",
+		HandlerFunc: handlers.UnDeleteClient,
+	},
+	model.Route{
+		Name: "PermaDeleteClient",
+		Method: "DELETE",
+		Pattern: "/client/delete/{id}",
+		HandlerFunc: handlers.PermaDeleteClient,
+	},
 }

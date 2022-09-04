@@ -13,51 +13,79 @@ export default function UpdateClient({ client, url }) {
     const handleEmailChange = event => setClientEmail(event.target.value)
     const handleAddressChange = event => setClientAddress(event.target.value)
     
-    const submitClient = async event => {
+    // const submitClient = async event => {
+    //     event.preventDefault();
+    //     var newClient = {
+    //         name: clientName,
+    //         email: clientEmail,
+    //         address: clientAddress,
+    //     }
+    //     await fetch(`${url}/client/${client.data.id}`, {
+    //         method: 'PUT',
+    //         mode: 'cors',
+    //         headers: { 'Content-Type': 'application/json' },
+    //         body: JSON.stringify(newClient)
+    //     })
+    //     .then(async (res) => {
+    //         if(res.ok) return res.json()
+    //         const json = await res.json();
+    //         throw new Error(json.error.message);
+    //     })
+    //     .then(() => {
+    //         alert("successfully updated client: " + newClient.name)
+    //         router.push(`/client/${client.data.id}`)
+    //     })
+    //     .catch(err => alert(err))
+    // }
+    async function submitClient(event) {
         event.preventDefault();
-        var newClient = {
+        var updatedClient = {
             name: clientName,
             email: clientEmail,
-            address: clientAddress,
+            address: clientAddress
         }
-        const resp = await fetch(`${url}/client/${client.data.id}`, {
-            method: 'PUT',
-            mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newClient)
-        })
-        .then(() => {
-            alert("successfully updated client: " + newClient.name)
-            router.push(`/client/${client.data.id}`)
-        })
-        .catch(err => alert(err))
+        try {
+            const res = await fetch(`${url}/client/${client.data.id}`, {
+                method: 'PUT',
+                mode: 'cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedClient)
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully updated client: " + data.data.name)
+            router.push(`/client/${data.data.id}`)
+        } catch(err) { err => alert(err) }
     }
 
     return (
-        <Form onSubmit={submitClient}>
-            <Form.Group className="mb-3">
-                <Form.Label>Name</Form.Label>
-                <Form.Control placeholder="Enter client name" 
-                              value={clientName}
-                              onChange={handleNameChange}/>
-            </Form.Group>
-            <Form.Group className="mb-3" controlId="formBasicEmail">
-                <Form.Label>Email</Form.Label>
-                <Form.Control type="email" 
-                              placeholder="Enter client email"
-                              value={clientEmail}
-                              onChange={handleEmailChange} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-                <Form.Label>Address</Form.Label>
-                <Form.Control placeholder="Enter client address"
-                              value={clientAddress}
-                              onChange={handleAddressChange} />
-            </Form.Group>
-            <Button variant="primary" type="submit">
-                Submit
-            </Button>
-        </Form>
+        <div>
+            <h1>Update Client</h1>
+            <hr />
+            <Form onSubmit={submitClient}>
+                <Form.Group className="mb-3">
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control placeholder="Enter client name" 
+                                value={clientName}
+                                onChange={handleNameChange}/>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Email</Form.Label>
+                    <Form.Control type="email" 
+                                placeholder="Enter client email"
+                                value={clientEmail}
+                                onChange={handleEmailChange} />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Address</Form.Label>
+                    <Form.Control placeholder="Enter client address"
+                                value={clientAddress}
+                                onChange={handleAddressChange} />
+                </Form.Group>
+                <Button type="submit" className="me-1">Submit</Button>
+                <Button href={'/client'}>Cancel</Button>
+            </Form>
+        </div>
     )
 }
 

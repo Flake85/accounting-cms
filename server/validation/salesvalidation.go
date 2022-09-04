@@ -17,10 +17,10 @@ func SaleValidation(saleReq *request.SaleRequest) (sale model.Sale, err error) {
 		return sale, errors.New("invalid input for unit cost")
 	}
 	sale = model.Sale{
-		ClientId: saleReq.ClientId,
-		InvoiceId: saleReq.InvoiceId,
+		ClientID: saleReq.ClientId,
+		// InvoiceID: saleReq.InvoiceId,
 		Description: saleReq.Description,
-		Units: int8(saleReq.Units),
+		Units: saleReq.Units,
 		UnitCost: saleReq.UnitCost,
 	}
 	return sale, err
