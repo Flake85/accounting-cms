@@ -12,23 +12,20 @@ export default function Expenses({ expenses, url }) {
 
     function confirmDelete(expense) { setShow(true); setTarget(expense) }
     function closeAlert() { setShow(false); setTarget("") }
-
-    function deleteExpense() {
-        fetch(`${url}/expense/${target.id}`, {
-            method: 'DELETE',
-            mode: 'cors'
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("Successfully deleted ", target.name)
+    
+    async function deleteExpense() {
+        try {
+            const res = await fetch(`${url}/expense/${target.id}`, {
+                method: 'DELETE',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully deleted expense id: " + data.data.id)
             router.reload(window.location.pathname)
-        })
-        .catch(err => alert(err))
+        } catch(err) { err => err }
     }
+
     return (
         <div>
             <h1>Expenses</h1>

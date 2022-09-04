@@ -11,29 +11,25 @@ export default function Invoices({ invoices, url }) {
     const [target, setTarget] = useState('')
 
     function confirmDelete(invoice) {
-        setShow(true)
-        setTarget(invoice)
+        setShow(true); setTarget(invoice)
     }
     function closeAlert() {
-        setShow(false)
-        setTarget("")
+        setShow(false); setTarget("")
     }
-    function deleteInvoice() {
-        fetch(`${url}/invoice/${target.id}`, {
-            method: 'DELETE',
-            mode: 'cors'
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("Successfully deleted ", target.description)
+
+    async function deleteInvoice() {
+        try {
+            const res = await fetch(`${url}/invoice/${target.id}`, {
+                method: 'DELETE',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully deleted invoice id: " + res.data.id)
             router.reload(window.location.pathname)
-        })
-        .catch(err => alert(err))
+        } catch(err) { err => alert(err) }
     }
+
     return (
         <div>
             <h1>Invoices</h1>
@@ -62,13 +58,16 @@ export default function Invoices({ invoices, url }) {
                             <td><Link href={`/invoice/${invoice.id}`}><a>{ invoice.description }</a></Link></td>
                             { invoice.client.name
                                 ? <td><Link href={`/client/${invoice.clientId}`}><a>{ invoice.client.name }</a></Link></td>
-                                : <td><Link href={`/client/${invoice.clientId}/deleted`}><a className="text-danger">{ invoice.clientId } (deleted)</a></Link></td>
+                                : <td><Link href={`/client/${invoice.clientId}/deleted`}><a className="text-danger">{ invoice.clientId } (inactive)</a></Link></td>
                             }
                             <td>{ invoice.isPaid.toString() }</td>
-                            <td>
-                                <Link href={`/invoice/${invoice.id}/update`}><a><i className="bi-pencil-square text-success"></i></a></Link>
-                                {!invoice.isPaid && <Link href={`#`}><a onClick={() => confirmDelete(invoice)}><i className="bi-trash text-danger"></i></a></Link>}
-                            </td>
+                            { invoice.client.name
+                                ? <td>
+                                    <Link href={`/invoice/${invoice.id}/update`}><a><i className="bi-pencil-square text-success"></i></a></Link>
+                                    {!invoice.isPaid && <Link href={`#`}><a onClick={() => confirmDelete(invoice)}><i className="bi-trash text-danger"></i></a></Link>}
+                                </td>
+                                : <td></td>
+                            }
                         </tr>
                     ))}
                 </tbody>

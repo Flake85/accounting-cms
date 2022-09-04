@@ -11,28 +11,22 @@ export default function UpdateExpense({ expense, url }) {
     const handleDescriptionChange = event => setExpenseDescription(event.target.value)
     const handleCostChange = event => setExpenseCost(event.target.value)
     
-    const submitExpense = async event => {
+    async function submitExpense(event) {
         event.preventDefault();
-        var newExpense = {
+        var updatedExpense = {
             description: expenseDescription,
             cost: parseFloat(expenseCost)
         }
-        await fetch(`${url}/expense/${expense.data.id}`, {
+        const res = await fetch(`${url}/expense/${expense.data.id}`, {
             method: 'PUT',
             mode: 'cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newExpense)
+            body: JSON.stringify(updatedExpense)
         })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("successfully updated expense: " + newExpense.description)
-            router.push(`/expense/${expense.data.id}`)
-        })
-        .catch(err => alert(err))
+        const data = await res.json()
+        if(!res.ok) throw new Error(data.error.message)
+        alert("Successfully updated expense: " + data.data.description)
+        router.push(`/expense/${data.data.id}`)
     }
 
     return (

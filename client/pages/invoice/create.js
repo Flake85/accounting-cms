@@ -9,26 +9,20 @@ export default function NewInvoice({ url, clients }) {
 
     function handleClientChange(event) { setInvoiceClient(event.target.value) }
 
-    const submitInvoice = async event => {
+    async function submitInvoice(event) {
         event.preventDefault();
-        var newInvoice = {
-            clientId: invoiceClient,
-        }
-        await fetch(`${url}/invoice`, {
-            method: 'POST',
-            mode: 'cors',
-            body: JSON.stringify(newInvoice)
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then((res) => {
-            alert("successfully submitted new invoice: "+ res.data.description)
-            router.push(`/invoice/${res.data.id}`)
-        })
-        .catch(err => alert(err))
+        var newInvoice = { clientId: invoiceClient }
+        try {
+            const res = await fetch(`${url}/invoice`, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify(newInvoice)
+            })
+            const data = res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully submitted new invoice: " + data.data.description)
+            router.push(`/invoice/${data.data.id}`)
+        } catch(err) { err => alert(err) }
     }
 
     return (

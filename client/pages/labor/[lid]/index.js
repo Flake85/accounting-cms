@@ -8,21 +8,17 @@ export default function Labor({ url, labor }) {
     const router = useRouter()
     const [show, setShow] = useState(false)
 
-    function deleteLabor() {
-        fetch(`${url}/labor/${labor.data.id}`, {
-            method: 'DELETE',
-            mode: 'cors'
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("Successfully deleted ", labor.data.description)
-            router.push('/labor')
-        })
-        .catch(err => alert(err))
+    async function deleteLabor() {
+        try {
+            const res = await fetch(`${url}/labor/${labor.data.id}`, {
+                method: 'DELETE',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully deleted labor id: " + data.data.id)
+            router.push(`/labor`)
+        } catch(err) { err => alert(err) }
     }
 
     return (

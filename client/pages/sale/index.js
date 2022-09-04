@@ -13,22 +13,19 @@ export default function Sales({ sales, url }) {
     function confirmDelete(sale) { setShow(true); setTarget(sale) }
     function closeAlert() { setShow(false); setTarget("") }
 
-    function deleteSale() {
-        fetch(`${url}/sale/${target.id}`, {
-            method: 'DELETE',
-            mode: 'cors'
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("Successfully deleted ", target.name)
+    async function deleteSale() {
+        try {
+            const res = await fetch(`${url}/sale/${target.id}`, {
+                method: 'DELETE',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully deleted sale id: ", data.data.id)
             router.reload(window.location.pathname)
-        })
-        .catch(err => alert(err))
+        } catch(err) { err => alert(err) }
     }
+
     return (
         <div>
             <h1>Sales</h1>

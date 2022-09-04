@@ -32,21 +32,17 @@ export default function Client({ client, url }) {
     //     .catch(err => alert(err))
     // }
 
-    function confirmUndelete() {
-        fetch(`${url}/client_deleted/${client.data.id}`, {
-            method: 'PUT',
-            mode: 'cors'
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("Successfully undeleted", client.data.name)
-            router.push("/client")
-        })
-        .catch(err => alert(err))
+    async function confirmUndelete() {
+        try {
+            const res = await fetch(`${url}/client_deleted/${client.data.id}`, {
+                method: 'PUT',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully un-deleted client id: " + data.data.id)
+            router.push('/client/' + data.data.id)
+        } catch(err) { err => alert(err) }
     }
 
     return (

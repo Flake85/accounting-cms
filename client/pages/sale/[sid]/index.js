@@ -8,21 +8,17 @@ export default function Sale({ url, sale }) {
     const router = useRouter()
     const [show, setShow] = useState(false)
 
-    function deleteSale() {
-        fetch(`${url}/sale/${sale.data.id}`, {
-            method: 'DELETE',
-            mode: 'cors'
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("Successfully deleted ", sale.data.description)
-            router.push('/sale')
-        })
-        .catch(err => alert(err))
+    async function deleteSale() {
+        try {
+            const res = await fetch(`${url}/sale/${sale.data.id}`, {
+                method: 'DELETE',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully deleted sale id: " + data.data.id)
+            router.push(`/sale`)
+        } catch(err) { err => alert(err) }
     }
 
     return (

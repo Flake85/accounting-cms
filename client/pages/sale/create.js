@@ -15,7 +15,7 @@ export default function NewSale({ clients, url }) {
     const handleUnitCostChange = event => setUnitCost(event.target.value)
     const handleClientChange = event => setSaleClient(event.target.value)
 
-    const submitSale = async event => {
+    async function submitSale(event) {
         event.preventDefault();
         var newSale = {
             description: saleDescription,
@@ -23,21 +23,17 @@ export default function NewSale({ clients, url }) {
             unitCost: parseFloat(saleUnitCost),
             clientId: saleClient,
         }
-        await fetch(`${url}/sale`, {
-            method: 'POST',
-            mode: 'cors',
-            body: JSON.stringify(newSale)
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("successfully submitted new sale: " + newSale.description)
-            router.push('/sale')
-        })
-        .catch(err => alert(err))
+        try {
+            const res = await fetch(`${url}/sale`, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify(newSale)
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully submitted new sale: " + data.data.description)
+            router.push(`/sale/${data.data.id}`)
+        } catch(err) { err => alert(err) }
     }
 
     return (

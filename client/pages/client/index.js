@@ -18,22 +18,19 @@ export default function Clients({ clients, url }) {
         setShow(false)
         setTarget("")
     }
-    function deleteClient() {
-        fetch(`${url}/client/${target.id}`, {
-            method: 'DELETE',
-            mode: 'cors'
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("Successfully deleted ", target.name)
+    async function deleteClient() {
+        try {
+            const res = await fetch(`${url}/client/${target.id}`, {
+                method: 'DELETE',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully deleted Client ID: " + data.data.id)
             router.reload(window.location.pathname)
-        })
-        .catch(err => alert(err))
+        } catch(err) { err => alert(err) }
     }
+
     return (
         <div>
             <h1>Clients</h1>

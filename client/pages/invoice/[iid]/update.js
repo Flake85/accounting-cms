@@ -6,32 +6,26 @@ import Button from "react-bootstrap/Button"
 export default function UpdateInvoice({ invoice, url }) {
 const router = useRouter()
 const [invoiceIsPaid, setInvoiceIsPaid] = useState(invoice.data.isPaid)
-console.log(invoiceIsPaid)
-
 const handleIsPaidChange = event => setInvoiceIsPaid(event.target.checked)
 
-const submitInvoice = async event => {
+async function submitInvoice(event) {
     event.preventDefault();
     var updatedInvoice = {
         clientId: invoice.data.clientId,
-        isPaid: invoiceIsPaid,
+        isPaid: invoiceIsPaid
     }
-    await fetch(`${url}/invoice/${invoice.data.id}`, {
-        method: 'PUT',
-        mode: 'cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updatedInvoice)
-    })
-    .then(async (res) => {
-        if(res.ok) return res.json()
-        const json = await res.json();
-        throw new Error(json.error.message);
-    })
-    .then(() => {
-        alert("successfully updated invoice: " + invoice.data.description)
-        router.push(`/invoice/${invoice.data.id}`)
-    })
-    .catch(err => alert(err))
+    try {
+        const res = await fetch(`${url}/invoice/${invoice.data.id}`, {
+            method: 'PUT',
+            mode: 'cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedInvoice)
+        })
+        const data = await res.json()
+        if(!res.ok) throw new Error(data.error.message)
+        alert("Successfully updated invoice: " + data.data.description)
+        router.push(`/invoice/${data.data.id}`)
+    } catch(err) { err => alert(err) }
 }
 
 return (

@@ -7,22 +7,19 @@ export default function Expense({ url, expense }) {
     const router = useRouter()
     const [show, setShow] = useState(false)
 
-    function deleteExpense() {
-        fetch(`${url}/expense/${expense.data.id}`, {
-            method: 'DELETE',
-            mode: 'cors'
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("Successfully deleted expense")
-            router.push("/expense")
-        })
-        .catch(err => alert(err))
+    async function deleteExpense() {
+        try {
+            const res = await fetch(`${url}/expense/${expense.data.id}`, {
+                method: 'DELETE',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully deleted expense id: " + data.data.id)
+            router.push(`/expense`)
+        } catch(err) { err => alert(err) }
     }
+
     return (
         <div>
             <h1>Expense</h1>

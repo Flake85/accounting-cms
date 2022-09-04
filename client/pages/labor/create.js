@@ -15,7 +15,7 @@ export default function NewLabor({ clients, url }) {
     const handleHourlyRateChange = event => setHourlyRate(event.target.value)
     const handleClientChange = event => setLaborClient(event.target.value)
 
-    const submitLabor = async event => {
+    async function submitLabor(event) {
         event.preventDefault();
         var newLabor = {
             description: laborDescription,
@@ -23,21 +23,17 @@ export default function NewLabor({ clients, url }) {
             hourlyRate: parseFloat(laborHourlyRate),
             clientId: laborClient,
         }
-        await fetch(`${url}/labor`, {
-            method: 'POST',
-            mode: 'cors',
-            body: JSON.stringify(newLabor)
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("successfully submitted new labor: "+newLabor.description)
-            router.push('/labor')
-        })
-        .catch(err => alert(err))
+        try {
+            const res = await fetch(`${url}/labor`, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify(newLabor)
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully submitted new labor: " + data.data.name)
+            router.push(`/labor/${data.data.id}`)
+        } catch(err) { err => alert(err) }
     }
 
     return (

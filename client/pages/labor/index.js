@@ -13,21 +13,17 @@ export default function Labors({ labors, url }) {
     function confirmDelete(labor) { setShow(true); setTarget(labor) }
     function closeAlert() { setShow(false); setTarget("") }
 
-    function deleteLabor() {
-        fetch(`${url}/labor/${target.id}`, {
-            method: 'DELETE',
-            mode: 'cors'
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("Successfully deleted ", target.name)
+    async function deleteLabor() {
+        try {
+            const res = await fetch(`${url}/labor/${target.id}`, {
+                method: 'DELETE',
+                mode: 'cors'
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully deleted labor id: " + data.data.id)
             router.reload(window.location.pathname)
-        })
-        .catch(err => alert(err))
+        } catch(err) { err => alert(err) }
     }
     return (
         <div>
@@ -60,7 +56,7 @@ export default function Labors({ labors, url }) {
                                 <td><Link href={`/labor/${labor.id}`}><a>{ labor.description }</a></Link></td>
                                 {labor.client.name 
                                     ? <td><Link href={`/client/${labor.client.id}`}><a>{ labor.client.name }</a></Link></td>
-                                    : <td className="text-danger"><Link href={`/client/${labor.clientId}/deleted`}><a>{ labor.clientId }</a></Link> (deleted)</td>
+                                    : <td className="text-danger"><Link href={`/client/${labor.clientId}/deleted`}><a>{ labor.clientId }</a></Link> (inactive)</td>
                                 }
                                 <td><Link href={`/invoice/${labor.invoiceId}`}><a>{ labor.invoiceId }</a></Link></td>
                                 {labor.invoice 

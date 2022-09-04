@@ -13,28 +13,24 @@ export default function NewClient({ url }) {
     function handleEmailChange(event) { setClientEmail(event.target.value) }
     function handleAddressChange(event) { setClientAddress(event.target.value) }
 
-    const submitClient = async event => {
+    async function submitClient(event) {
         event.preventDefault();
         var newClient = {
             name: clientName,
             email: clientEmail,
-            address: clientAddress,
+            address: clientAddress
         }
-        await fetch(`${url}/client`, {
-            method: 'POST',
-            mode: 'cors',
-            body: JSON.stringify(newClient)
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("successfully submitted new client: "+ newClient.name)
+        try {
+            const res = await fetch(`${url}/client`, {
+                method: 'POST',
+                mode: 'cors',
+                body: JSON.stringify(newClient)
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully created new client: " + data.data.name)
             router.push('/client')
-        })
-        .catch(err => alert(err))
+        } catch(err) { err => alert(err) }
     }
 
     return (

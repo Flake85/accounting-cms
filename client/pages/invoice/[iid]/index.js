@@ -8,28 +8,24 @@ import { useRouter } from 'next/router'
 
 export default function Invoice({ url, invoice }) {
     const router = useRouter()
-    const submitInvoicePaid = async event => {
+    
+    async function submitInvoicePaid(event) {
         event.preventDefault();
-        var updatedPaidInvoice = {
-            isPaid: true,
-        }
-        await fetch(`${url}/invoice/${invoice.data.id}`, {
-            method: 'PUT',
-            mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedPaidInvoice)
-        })
-        .then(async (res) => {
-            if(res.ok) return res.json()
-            const json = await res.json();
-            throw new Error(json.error.message);
-        })
-        .then(() => {
-            alert("successfully updated invoice: " + invoice.data.description + " as paid")
+        var updatedPaidInvoice = { isPaid: true }
+        try {
+            const res = await fetch(`${url}/invoice/${invoice.data.id}`, {
+                method: 'PUT',
+                mode: 'cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedPaidInvoice)
+            })
+            const data = await res.json()
+            if(!res.ok) throw new Error(data.error.message)
+            alert("Successfully updated invoice: " + data.data.description + " as paid")
             router.reload(window.location.pathname)
-        })
-        .catch(err => alert(err))
+        } catch(err) { err => alert(err) }
     }
+
     return (
         <div>
             <h1>Invoice</h1>
