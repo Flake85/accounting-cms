@@ -1,3 +1,4 @@
+import React from 'react'
 import Alert from 'react-bootstrap/Alert'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -5,9 +6,12 @@ import Table from 'react-bootstrap/Table'
 import Button from 'react-bootstrap/Button'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { useDispatch } from 'react-redux'
+import { openAlertModal, setAlertData } from '../../../slices/alertModalSlice'
 
 export default function Invoice({ url, invoice }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     
     async function submitInvoicePaid(event) {
         event.preventDefault();
@@ -20,10 +24,16 @@ export default function Invoice({ url, invoice }) {
                 body: JSON.stringify(updatedPaidInvoice)
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully updated invoice: " + data.data.description + " as paid")
+            if(!res.ok) {
+                dispatch(setAlertData({
+                    title: 'Something went wrong',
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
             router.reload(window.location.pathname)
-        } catch(err) { err => alert(err) }
+        } catch(err) { err => console.log(err) }
     }
 
     return (

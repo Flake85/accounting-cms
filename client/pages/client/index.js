@@ -4,20 +4,18 @@ import Button from 'react-bootstrap/Button'
 import Link from 'next/link'
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux'
+import { setAlertData, openAlertModal } from '../../slices/alertModalSlice'
 
 export default function Clients({ clients, url }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [show, setShow] = useState(false)
     const [target, setTarget] = useState('')
 
-    function confirmDelete(client) {
-        setShow(true)
-        setTarget(client)
-    }
-    function closeAlert() {
-        setShow(false)
-        setTarget("")
-    }
+    function confirmDelete(client) { setShow(true); setTarget(client) }
+    function closeAlert() { setShow(false); setTarget("")}
+
     async function deleteClient() {
         try {
             const res = await fetch(`${url}/client/${target.id}`, {
@@ -25,10 +23,16 @@ export default function Clients({ clients, url }) {
                 mode: 'cors'
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully deleted Client ID: " + data.data.id)
-            router.reload(window.location.pathname)
-        } catch(err) { err => alert(err) }
+            if(!res.ok) {
+                dispatch(setAlertData({ 
+                    title: 'Something went wrong', 
+                    body: 'Error: ' + data.error.message
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
+            router.push(`/client/${data.data.id}/deleted`)
+        } catch(err) { err => console.log(err) }
     }
 
     return (

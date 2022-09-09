@@ -4,9 +4,12 @@ import Button from 'react-bootstrap/Button'
 import Link from 'next/link'
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
+import { setAlertData, openAlertModal } from '../../slices/alertModalSlice'
 
 export default function Sales({ sales, url }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [show, setShow] = useState(false)
     const [target, setTarget] = useState('')
 
@@ -20,10 +23,16 @@ export default function Sales({ sales, url }) {
                 mode: 'cors'
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully deleted sale id: ", data.data.id)
+            if(!res.ok) {
+                dispatch(setAlertData({
+                    title: "Something went wrong",
+                    body: "Error: " + data.error.message
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
             router.reload(window.location.pathname)
-        } catch(err) { err => alert(err) }
+        } catch(err) { err => console.log(err) }
     }
 
     return (
@@ -33,7 +42,7 @@ export default function Sales({ sales, url }) {
                 <Alert.Heading>Warning</Alert.Heading>
                 <p>Are you sure you want to delete "{ target.description }"?</p>
                 <p>This action cannot be undone.</p>
-                <Button onClick={deleteSale}>Confirm</Button>
+                <Button onClick={deleteSale} className="me-1">Confirm</Button>
                 <Button onClick={closeAlert}>Cancel</Button>
             </Alert>
             { sales.data.length
@@ -58,7 +67,7 @@ export default function Sales({ sales, url }) {
                                 <td><Link href={`/sale/${sale.id}`}><a>{ sale.description }</a></Link></td>
                                 {sale.client.name 
                                     ? <td><Link href={`/client/${sale.client.id}`}><a>{ sale.client.name }</a></Link></td>
-                                    : <td className="text-danger"><Link href={`/client/${sale.clientId}/deleted`}><a>{ sale.clientId }</a></Link> (deleted)</td>
+                                    : <td className="text-danger"><Link href={`/client/${sale.clientId}/deleted`}><a>{ sale.clientId }</a></Link> (inactive)</td>
                                 }
                                 <td><Link href={`/invoice/${sale.invoiceId}`}><a>{ sale.invoiceId }</a></Link></td>
                                 { sale.invoice 
@@ -69,12 +78,14 @@ export default function Sales({ sales, url }) {
                                 <td>{ sale.unitCost }</td>
                                 <td>{ sale.total }</td>
                                 { !sale.invoiceId
-                                    ? <td>
+                                    ? 
+                                    <td>
                                         <Link href={`/sale/${sale.id}/update`}><a><i className="bi-pencil-square text-success"></i></a></Link>
                                         <Link href={`#`}><a onClick={() => confirmDelete(sale)}><i className="bi-trash text-danger"></i></a></Link>
                                     </td>
-                                    : <td></td>
-                                }
+                                    : 
+                                    <td></td> 
+                                } 
                             </tr>
                         ))}
                     </tbody>

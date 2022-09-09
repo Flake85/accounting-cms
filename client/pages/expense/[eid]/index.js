@@ -1,10 +1,14 @@
+import React from 'react'
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import { useDispatch } from 'react-redux'
+import { openAlertModal, setAlertData } from '../../../slices/alertModalSlice'
 
 export default function Expense({ url, expense }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [show, setShow] = useState(false)
 
     async function deleteExpense() {
@@ -14,10 +18,16 @@ export default function Expense({ url, expense }) {
                 mode: 'cors'
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully deleted expense id: " + data.data.id)
+            if(!res.ok) {
+                dispatch(setAlertData({
+                    title: 'Something went wrong',
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
             router.push(`/expense`)
-        } catch(err) { err => alert(err) }
+        } catch(err) { err => console.log(err) }
     }
 
     return (

@@ -129,6 +129,11 @@ func DeleteInvoice(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
+	_, err = repository.FindInvoiceByID(invoiceId)
+	if err != nil {
+		response.NewErrorResponse(404, "invoice not found", w)
+		return
+	}
 	query := model.Invoice{}
 	query.ID = invoiceId
 	err = repository.DeleteInvoice(&query); if err != nil {

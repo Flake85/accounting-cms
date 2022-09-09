@@ -1,10 +1,15 @@
+import React from 'react'
 import Form from "react-bootstrap/Form"
 import Button from "react-bootstrap/Button"
 import { useState } from "react";
 import { useRouter } from "next/router"
+import { useDispatch } from 'react-redux';
+import { openAlertModal, setAlertData } from '../../slices/alertModalSlice';
 
 export default function NewLabor({ clients, url }) {
     const router = useRouter()
+    const dispatch = useDispatch()
+    
     const [laborDescription, setLaborDescription] = useState('')
     const [laborHoursWorked, setHoursWorked] = useState(0)
     const [laborHourlyRate, setHourlyRate] = useState(0)
@@ -30,8 +35,14 @@ export default function NewLabor({ clients, url }) {
                 body: JSON.stringify(newLabor)
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully submitted new labor: " + data.data.name)
+            if(!res.ok) {
+                dispatch(setAlertData({ 
+                    title: 'Something went wrong', 
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
             router.push(`/labor/${data.data.id}`)
         } catch(err) { err => alert(err) }
     }

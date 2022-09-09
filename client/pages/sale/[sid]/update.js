@@ -2,9 +2,13 @@ import Form from "react-bootstrap/Form"
 import Button from "react-bootstrap/Button"
 import { useState } from "react";
 import { useRouter } from "next/router"
+import { useDispatch } from 'react-redux'
+import { setAlertData, openAlertModal } from '../../../slices/alertModalSlice'
 
 export default function updatedSale({ sale, clients, url }) {
     const router = useRouter()
+    const dispatch = useDispatch()
+
     const [saleDescription, setSaleDescription] = useState(sale.data.description)
     const [saleUnits, setUnits] = useState(sale.data.units)
     const [saleUnitCost, setUnitCost] = useState(sale.data.unitCost)
@@ -14,6 +18,8 @@ export default function updatedSale({ sale, clients, url }) {
     const handleUnitsChange = event => setUnits(event.target.value)
     const handleUnitCostChange = event => setUnitCost(event.target.value)
     const handleClientChange = event => setSaleClient(event.target.value)
+
+
 
     async function submitSale(event) {
         event.preventDefault();
@@ -31,10 +37,16 @@ export default function updatedSale({ sale, clients, url }) {
                 body: JSON.stringify(updatedSale)
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully updated sale: " + data.data.description)
+            if(!res.ok) {
+                dispatch(setAlertData({ 
+                    title: 'Something went wrong', 
+                    body: 'Error: ' + data.error.message
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
             router.push(`/sale/${data.data.id}`)
-        } catch(err) { alert(err) }
+        } catch(err) { err => console.log(err) }
     }
 
     return (

@@ -1,10 +1,14 @@
+import React from 'react'
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import { useDispatch } from 'react-redux'
+import { setAlertData, openAlertModal } from '../../../slices/alertModalSlice'
 
 export default function Client({ url, client }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [show, setShow] = useState(false)
     
     async function deleteClient() {
@@ -14,10 +18,16 @@ export default function Client({ url, client }) {
                 mode: 'cors'
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully deleted Client ID: " + data.data.id)
-            router.push(`/client`)
-        } catch(err) { err => alert(err) }
+            if(!res.ok) {
+                dispatch(setAlertData({ 
+                    title: 'Something went wrong', 
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
+            router.push(`/client/${data.data.id}/deleted`)
+        } catch(err) { err => console.log(err) }
     }
 
     return (

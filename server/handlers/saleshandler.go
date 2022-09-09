@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"math"
 	"net/http"
 	"server/model"
 	"server/repository"
@@ -65,7 +66,8 @@ func CreateSale(w http.ResponseWriter, r *http.Request) {
 		sale.Invoice = &invoice
 	}
 	total := sale.Units * sale.UnitCost
-	sale.Total = total
+	sale.Total = math.Round(total * 100) / 100
+
 	saleId, err := repository.CreateSale(&sale); if err != nil {
 		response.NewErrorResponse(500, "error occurred creating sale", w)
 		return
@@ -102,13 +104,16 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 	sale.UnitCost = saleValidated.UnitCost
 	
 	total := sale.Units * sale.UnitCost
-	sale.Total = total
+	sale.Total = math.Round(total * 100) / 100
 
 	if sale.InvoiceID != nil {
 		invoice, err := repository.FindInvoiceByID(*sale.InvoiceID); 
 		if err != nil {
 			response.NewErrorResponse(500, "error occured finding invoice", w)
 			return
+		}
+		if invoice.IsPaid == true {
+			response.NewErrorResponse(400, "cannot update labor if invoice is already paid", w)
 		}
 		if sale.ClientID != invoice.ClientID {
 			response.NewErrorResponse(500, "sale's client id must match invoice's client id", w)
@@ -135,10 +140,19 @@ func DeleteSale(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
+	sale, err := repository.FindSaleByID(saleId) 
+	if err != nil {
+		response.NewErrorResponse(404, "sale not found", w)
+		return
+	}
+	if sale.InvoiceID != nil {
+		response.NewErrorResponse(418, "cannot delete an invoiced sale", w)
+		return
+	}
 	query := model.Sale{}
 	query.ID = saleId
 	err = repository.DeleteSale(&query); if err != nil {
-		response.NewErrorResponse(500, "invalid uuid", w)
+		response.NewErrorResponse(500, "something went wrong", w)
 		return
 	}
 	response.NewOkResponse(&query, w)

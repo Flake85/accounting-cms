@@ -3,9 +3,12 @@ import Button from 'react-bootstrap/Button'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+import { openAlertModal, setAlertData } from '../../../slices/alertModalSlice'
 
 export default function Sale({ url, sale }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [show, setShow] = useState(false)
 
     async function deleteSale() {
@@ -15,10 +18,16 @@ export default function Sale({ url, sale }) {
                 mode: 'cors'
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully deleted sale id: " + data.data.id)
+            if(!res.ok) {
+                dispatch(setAlertData({ 
+                    title: 'Something went wrong', 
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
             router.push(`/sale`)
-        } catch(err) { err => alert(err) }
+        } catch(err) { err => console.log(err) }
     }
 
     return (
