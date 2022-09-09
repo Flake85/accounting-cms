@@ -117,6 +117,11 @@ func DeleteClient(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
+	_, err = repository.FindClientByID(clientId)
+	if err != nil {
+		response.NewErrorResponse(404, "client not found", w)
+		return
+	}
 	query := model.Client{}
 	query.ID = clientId
 	err = repository.DeleteClient(&query); if err != nil {
@@ -131,6 +136,7 @@ func UnDeleteClient(w http.ResponseWriter, r *http.Request) {
 	clientId, err := uuid.Parse(clientIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "invalid uuid", w)
+		return
 	}
 	client := model.Client{}
 	client.ID = clientId

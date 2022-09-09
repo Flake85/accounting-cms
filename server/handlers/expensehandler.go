@@ -92,6 +92,11 @@ func DeleteExpense(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
+	_, err = repository.FindExpenseByID(expenseId)
+	if err != nil {
+		response.NewErrorResponse(404, "expense not found", w)
+		return
+	}
 	query := model.Expense{}
 	query.ID = expenseId
 	err = repository.DeleteExpense(&query); if err != nil {

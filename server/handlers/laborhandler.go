@@ -111,6 +111,9 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 			response.NewErrorResponse(500, "error occured finding invoice", w)
 			return
 		}
+		if invoice.IsPaid == true {
+			response.NewErrorResponse(400, "cannot update labor if invoice is already paid", w)
+		}
 		if labor.ClientID != invoice.ClientID {
 			response.NewErrorResponse(500, "labor's client id must match invoice's client id", w)
 			return
@@ -135,6 +138,15 @@ func DeleteLabor(w http.ResponseWriter, r *http.Request) {
 	laborId, err := uuid.Parse(laborIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "invalid uuid", w)
+		return
+	}
+	labor, err := repository.FindLaborByID(laborId)
+	if err != nil {
+		response.NewErrorResponse(404, "labor not found", w)
+		return
+	}
+	if labor.InvoiceID != nil {
+		response.NewErrorResponse(418, "cannot delete an invoiced labor", w)
 		return
 	}
 	query := model.Labor{}

@@ -1,10 +1,14 @@
+import React from 'react'
 import { useState } from "react"
 import { useRouter } from "next/router"
 import Form from 'react-bootstrap/Form'
 import Button from "react-bootstrap/Button"
+import { useDispatch } from 'react-redux'
+import { setAlertData } from '../../../slices/alertModalSlice'
 
 export default function UpdateExpense({ expense, url }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [expenseDescription, setExpenseDescription] = useState(expense.data.description)
     const [expenseCost, setExpenseCost] = useState(expense.data.cost)
 
@@ -17,16 +21,24 @@ export default function UpdateExpense({ expense, url }) {
             description: expenseDescription,
             cost: parseFloat(expenseCost)
         }
-        const res = await fetch(`${url}/expense/${expense.data.id}`, {
-            method: 'PUT',
-            mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedExpense)
-        })
-        const data = await res.json()
-        if(!res.ok) throw new Error(data.error.message)
-        alert("Successfully updated expense: " + data.data.description)
-        router.push(`/expense/${data.data.id}`)
+        try {
+            const res = await fetch(`${url}/expense/${expense.data.id}`, {
+                method: 'PUT',
+                mode: 'cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedExpense)
+            })
+            const data = await res.json()
+            if(!res.ok) {
+                dispatch(setAlertData({
+                    title: 'Something went wrong',
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
+            router.push(`/expense/${data.data.id}`)
+        } catch(err) { err => console.log(err) }
     }
 
     return (

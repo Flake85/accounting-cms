@@ -1,10 +1,14 @@
+import React from 'react'
 import { useState } from "react"
 import { useRouter } from "next/router"
 import Form from 'react-bootstrap/Form'
 import Button from "react-bootstrap/Button"
+import { useDispatch } from 'react-redux'
+import { openAlertModal, setAlertData } from '../../../slices/alertModalSlice'
 
 export default function UpdateInvoice({ invoice, url }) {
 const router = useRouter()
+const dispatch = useDispatch()
 const [invoiceIsPaid, setInvoiceIsPaid] = useState(invoice.data.isPaid)
 const handleIsPaidChange = event => setInvoiceIsPaid(event.target.checked)
 
@@ -22,10 +26,16 @@ async function submitInvoice(event) {
             body: JSON.stringify(updatedInvoice)
         })
         const data = await res.json()
-        if(!res.ok) throw new Error(data.error.message)
-        alert("Successfully updated invoice: " + data.data.description)
+        if(!res.ok) {
+            dispatch(setAlertData({
+                title: 'Something went wrong',
+                body: 'Error: ' + data
+            }))
+            dispatch(openAlertModal())
+            throw new Error(data.error.message)
+        }
         router.push(`/invoice/${data.data.id}`)
-    } catch(err) { err => alert(err) }
+    } catch(err) { err => console.log(err) }
 }
 
 return (

@@ -1,12 +1,16 @@
+import React from 'react'
 import Table from 'react-bootstrap/Table';
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
 import Link from 'next/link'
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { useDispatch } from 'react-redux';
+import { openAlertModal, setAlertData } from '../../slices/alertModalSlice';
 
 export default function Invoices({ invoices, url }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [show, setShow] = useState(false)
     const [target, setTarget] = useState('')
 
@@ -24,10 +28,16 @@ export default function Invoices({ invoices, url }) {
                 mode: 'cors'
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully deleted invoice id: " + res.data.id)
+            if(!res.ok) {
+                dispatch(setAlertData({
+                    title: 'Something went wrong',
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
             router.reload(window.location.pathname)
-        } catch(err) { err => alert(err) }
+        } catch(err) { err => console.log(err) }
     }
 
     return (
@@ -72,7 +82,7 @@ export default function Invoices({ invoices, url }) {
                     ))}
                 </tbody>
             </Table>
-            <Button href="/invoice/create">Add Invoice</Button>
+            <Button href="/invoice/create" className="mb-5">Add Invoice</Button>
         </div>
     );
 }

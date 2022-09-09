@@ -1,10 +1,14 @@
+import React from 'react'
 import Form from "react-bootstrap/Form"
 import Button from "react-bootstrap/Button"
 import { useState } from "react";
 import { useRouter } from "next/router"
+import { useDispatch } from 'react-redux';
+import { openAlertModal, setAlertData } from '../../slices/alertModalSlice';
 
 export default function NewInvoice({ url, clients }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [invoiceClient, setInvoiceClient] = useState('null')
 
     function handleClientChange(event) { setInvoiceClient(event.target.value) }
@@ -18,11 +22,17 @@ export default function NewInvoice({ url, clients }) {
                 mode: 'cors',
                 body: JSON.stringify(newInvoice)
             })
-            const data = res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully submitted new invoice: " + data.data.description)
+            const data = await res.json()
+            if(!res.ok) {
+                dispatch(setAlertData({
+                    title: 'Something went wrong',
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
             router.push(`/invoice/${data.data.id}`)
-        } catch(err) { err => alert(err) }
+        } catch(err) { err => console.log(err) }
     }
 
     return (

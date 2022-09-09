@@ -1,38 +1,20 @@
+import React from 'react'
 import Form from "react-bootstrap/Form"
 import Button from "react-bootstrap/Button"
 import { useState } from "react";
 import { useRouter } from "next/router"
+import { openAlertModal, setAlertData } from '../../slices/alertModalSlice';
+import { useDispatch } from 'react-redux';
 
 export default function NewExpense({ url }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [expenseDescription, setExpenseDescription] = useState('')
     const [expenseCost, setExpenseCost] = useState(0)
 
     const handleDescriptionChange = event => setExpenseDescription(event.target.value)
     const handleCostChange = event => setExpenseCost(event.target.value)
 
-    // const submitExpense = async event => {
-    //     event.preventDefault();
-    //     var newExpense = {
-    //         description: expenseDescription,
-    //         cost: parseFloat(expenseCost),
-    //     }
-    //     await fetch(`${url}/expense`, {
-    //         method: 'POST',
-    //         mode: 'cors',
-    //         body: JSON.stringify(newExpense)
-    //     })
-    //     .then(async (res) => {
-    //         if(res.ok) return res.json()
-    //         const json = await res.json();
-    //         throw new Error(json.error.message);
-    //     })
-    //     .then(() => {
-    //         alert("successfully submitted new expense: "+newExpense.description)
-    //         router.push('/expense')
-    //     })
-    //     .catch(err => alert(err))
-    // }
     async function submitExpense(event) {
         event.preventDefault();
         var newExpense = {
@@ -46,10 +28,16 @@ export default function NewExpense({ url }) {
                 body: JSON.stringify(newExpense)
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully submitted new expense: " + data.data.description)
+            if(!res.ok) {
+                dispatch(setAlertData({
+                    title: 'Something went wrong',
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
             router.push(`/expense/${data.data.id}`)
-        } catch(err) { alert(err) }
+        } catch(err) { console.log(err) }
     }
 
     return (

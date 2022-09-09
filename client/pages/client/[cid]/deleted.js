@@ -3,9 +3,12 @@ import { useRouter } from 'next/router'
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
 // import Form from 'react-bootstrap/Form'
+import { useDispatch } from 'react-redux'
+import { setAlertData, openAlertModal } from '../../../slices/alertModalSlice'
 
 export default function Client({ client, url }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     // const [confirm, setConfirm] = useState("")
     const [showUndelete, setShowUndelete] = useState(false)
     // const [showPermDelete, setShowPermDelete] = useState(false)
@@ -39,10 +42,16 @@ export default function Client({ client, url }) {
                 mode: 'cors'
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully un-deleted client id: " + data.data.id)
-            router.push('/client/' + data.data.id)
-        } catch(err) { err => alert(err) }
+            if(!res.ok) {
+                dispatch(setAlertData({ 
+                    title: 'Something went wrong', 
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
+            router.push(`/client/${data.data.id}`)
+        } catch(err) { err => console.log(err) }
     }
 
     return (

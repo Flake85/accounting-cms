@@ -2,9 +2,12 @@ import { useState } from "react"
 import { useRouter } from "next/router"
 import Form from 'react-bootstrap/Form'
 import Button from "react-bootstrap/Button"
+import { useDispatch } from 'react-redux'
+import { setAlertData, openAlertModal } from '../../../slices/alertModalSlice'
 
 export default function UpdateClient({ client, url }) {
     const router = useRouter()
+    const dispatch = useDispatch()
     const [clientName, setClientName] = useState(client.data.name)
     const [clientEmail, setClientEmail] = useState(client.data.email)
     const [clientAddress, setClientAddress] = useState(client.data.address)
@@ -13,30 +16,6 @@ export default function UpdateClient({ client, url }) {
     const handleEmailChange = event => setClientEmail(event.target.value)
     const handleAddressChange = event => setClientAddress(event.target.value)
     
-    // const submitClient = async event => {
-    //     event.preventDefault();
-    //     var newClient = {
-    //         name: clientName,
-    //         email: clientEmail,
-    //         address: clientAddress,
-    //     }
-    //     await fetch(`${url}/client/${client.data.id}`, {
-    //         method: 'PUT',
-    //         mode: 'cors',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         body: JSON.stringify(newClient)
-    //     })
-    //     .then(async (res) => {
-    //         if(res.ok) return res.json()
-    //         const json = await res.json();
-    //         throw new Error(json.error.message);
-    //     })
-    //     .then(() => {
-    //         alert("successfully updated client: " + newClient.name)
-    //         router.push(`/client/${client.data.id}`)
-    //     })
-    //     .catch(err => alert(err))
-    // }
     async function submitClient(event) {
         event.preventDefault();
         var updatedClient = {
@@ -52,10 +31,16 @@ export default function UpdateClient({ client, url }) {
                 body: JSON.stringify(updatedClient)
             })
             const data = await res.json()
-            if(!res.ok) throw new Error(data.error.message)
-            alert("Successfully updated client: " + data.data.name)
-            router.push(`/client/${data.data.id}`)
-        } catch(err) { err => alert(err) }
+            if(!res.ok) {
+                dispatch(setAlertData({ 
+                    title: 'Something went wrong', 
+                    body: 'Error: ' + data
+                }))
+                dispatch(openAlertModal())
+                throw new Error(data)
+            }
+            router.push(`client/${data.data.id}`)
+        } catch(err) { err => console.log(err) }
     }
 
     return (
