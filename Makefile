@@ -11,7 +11,7 @@ golang:
 	cd server; go run main.go -POSTGRES_HOST=${POSTGRES_HOST} -POSTGRES_PORT=${POSTGRES_PORT} -POSTGRES_USER=${POSTGRES_USER} -POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -POSTGRES_DB=${POSTGRES_DB}
 
 react:
-	cd client; yarn run dev
+	cd client; yarn && yarn run dev
 
 run:
 	make dockers && make golang && make react
