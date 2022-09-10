@@ -262,7 +262,7 @@ error response:
 
     {
         "error": {
-            "message": "error occurred retrieving clients"
+            "message": "error occurred retrieving labors"
         }
     }
 
