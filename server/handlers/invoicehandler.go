@@ -78,15 +78,23 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	}
 	invoice.ID = invoiceId
 	invoice.Client = client
-	sales, err := repository.UpdateSalesByClientId(invoice.ClientID, invoiceId); if err != nil {
+	_, err = repository.UpdateSalesByClientId(invoice.ClientID, invoiceId); if err != nil {
 		response.NewErrorResponse(500, "error updating invoice sales with client id", w)
 		return
 	}
-	labors, err := repository.UpdateLaborsByClientId(invoice.ClientID, invoiceId); if err != nil {
+	_, err = repository.UpdateLaborsByClientId(invoice.ClientID, invoiceId); if err != nil {
 		response.NewErrorResponse(500, "error updating invoice labors with client id", w)
 		return
 	}
+	sales, err := repository.GetSalesByInvoiceId(invoiceId); if err != nil {
+		response.NewErrorResponse(500, "error retrieveing sales by invoice id", w)
+		return
+	}
 	invoice.Sales = &sales
+	labors, err := repository.GetLaborsByInvoiceId(invoiceId); if err != nil {
+		response.NewErrorResponse(500, "error retrieving labors by invoice id", w)
+		return
+	}
 	invoice.Labors = &labors
 	response.NewOkResponse(&invoice, w)
 }
