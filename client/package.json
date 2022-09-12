@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.5",
+    "@redux-devtools/core": "^3.13.1",
     "bootstrap": "^5.2.0",
+    "bootstrap-icons": "^1.9.1",
     "next": "12.2.2",
     "react": "18.2.0",
     "react-bootstrap": "^2.5.0",
