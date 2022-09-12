@@ -7,7 +7,7 @@ Curerntly the gorm version used the original lib, which is very very old, and us
 
 ---
 #### Subtasks:
-- [ ] change `jinzhu/gorm` dep to `gorm.io`
-- [ ] make sure everything still works
+- [x] change `jinzhu/gorm` dep to `gorm.io`
+- [x] make sure everything still works
 
 ---
