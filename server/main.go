@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"gorm.io/gorm"
+	"gorm.io/driver/postgres"
 
 	"server/db"
 	"server/flags"
@@ -18,11 +18,10 @@ import (
 
 func main() {
 	flag.Parse()
-	db, err := gorm.Open("postgres", db.BuildDbConnectionStr(*flags.Host, *flags.Port, *flags.User, *flags.Password, *flags.DbName))
+	db, err := gorm.Open(postgres.Open(db.BuildDbConnectionStr(*flags.Host, *flags.Port, *flags.User, *flags.Password, *flags.DbName)))
 	if err != nil {
 		fmt.Printf("db connection error: %v", err)
 	}
-	defer db.Close()
 	repository.DB = db
 	db.AutoMigrate(&model.Client{}, &model.Expense{}, &model.Invoice{}, &model.Labor{}, &model.Sale{})
 	r := router.NewRouter()

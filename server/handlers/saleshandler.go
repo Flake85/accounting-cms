@@ -48,7 +48,7 @@ func CreateSale(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(422, "sale validation error", w)
 		return
 	}
-	sale.Client, err = repository.FindClientByID(sale.ClientID); if err != nil {
+	client, err := repository.FindClientByID(sale.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
@@ -73,6 +73,7 @@ func CreateSale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sale.ID = saleId
+	sale.Client = client
 	response.NewOkResponse(&sale, w)
 }
 
