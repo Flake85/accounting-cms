@@ -24,6 +24,12 @@ func GetAllLabors() ([]model.Labor, error) {
 	return labors, nil
 }
 
+func GetNotInvoicedLaborsCountByClientId(clientId uuid.UUID) int64 {
+	labors := make([]model.Labor, 0)
+	result := DB.Where("invoice_id IS NULL AND client_id = ?", clientId).Find(&labors)
+	return result.RowsAffected
+}
+
 func GetLaborsByInvoiceId(invoiceId uuid.UUID) ([]model.Labor, error) {
 	labors := make([]model.Labor, 0)
 	if DB.Where("invoice_id = ?", invoiceId).Preload("Client").Find(&labors).Error != nil {

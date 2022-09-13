@@ -18,7 +18,6 @@ func SaleValidation(saleReq *request.SaleRequest) (sale model.Sale, err error) {
 	}
 	sale = model.Sale{
 		ClientID: saleReq.ClientId,
-		// InvoiceID: saleReq.InvoiceId,
 		Description: saleReq.Description,
 		Units: saleReq.Units,
 		UnitCost: saleReq.UnitCost,

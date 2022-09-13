@@ -52,19 +52,6 @@ func CreateSale(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
-	if sale.InvoiceID != nil {
-		invoice, err := repository.FindInvoiceByID(*sale.InvoiceID); 
-		if err != nil {
-			response.NewErrorResponse(500, "error occured finding invoice", w)
-			return
-		}
-		if sale.ClientID != invoice.ClientID {
-			response.NewErrorResponse(500, "sale's client id must match invoice's client id", w)
-			return
-		}
-		invoice.Client = sale.Client
-		sale.Invoice = &invoice
-	}
 	total := sale.Units * sale.UnitCost
 	sale.Total = math.Round(total * 100) / 100
 
@@ -99,30 +86,12 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	sale.ClientID = saleValidated.ClientID
-	sale.InvoiceID = saleValidated.InvoiceID
 	sale.Description = saleValidated.Description
 	sale.Units = saleValidated.Units
 	sale.UnitCost = saleValidated.UnitCost
 	
 	total := sale.Units * sale.UnitCost
 	sale.Total = math.Round(total * 100) / 100
-
-	if sale.InvoiceID != nil {
-		invoice, err := repository.FindInvoiceByID(*sale.InvoiceID); 
-		if err != nil {
-			response.NewErrorResponse(500, "error occured finding invoice", w)
-			return
-		}
-		if invoice.IsPaid == true {
-			response.NewErrorResponse(400, "cannot update labor if invoice is already paid", w)
-		}
-		if sale.ClientID != invoice.ClientID {
-			response.NewErrorResponse(500, "sale's client id must match invoice's client id", w)
-			return
-		}
-		invoice.Client = sale.Client
-		sale.Invoice = &invoice
-	}
 	sale.Client, err = repository.FindClientByID(sale.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return

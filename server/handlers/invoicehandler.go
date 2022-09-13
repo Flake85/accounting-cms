@@ -67,6 +67,14 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
+
+	laborCount := repository.GetNotInvoicedLaborsCountByClientId(invoice.ClientID)
+	salesCount := repository.GetNotInvoicedSalesCountByClientId(invoice.ClientID)
+	if laborCount < 1 && salesCount < 1{
+		response.NewErrorResponse(400, "cannot create empty invoice. add sale or labor first.", w)
+		return
+	}
+
 	current := time.Now().Format("2006-01-02")
 	description := client.Name + ": " + current 
 	invoice.Description = description
