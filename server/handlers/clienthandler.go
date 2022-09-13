@@ -140,7 +140,6 @@ func UnDeleteClient(w http.ResponseWriter, r *http.Request) {
 	}
 	client := model.Client{}
 	client.ID = clientId
-	client.DeletedAt = nil
 	if err := repository.UnDeleteClient(&client); err != nil {
 		response.NewErrorResponse(500, "error undeleting client", w)
 		return 

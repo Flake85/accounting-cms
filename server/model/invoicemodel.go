@@ -7,7 +7,7 @@ import (
 type Invoice struct {
 	BaseModel
 	Description string	  `json:"description"`
-	ClientID    uuid.UUID `json:"clientId" gorm:"TYPE:uuid REFERENCES clients"`
+	ClientID    uuid.UUID `json:"clientId" gorm:"TYPE:uuid"`
 	Client	    Client	  `json:"client" gorm:"constraint:OnDelete:CASCADE;"`
 	Sales		*[]Sale   `json:"sales"`
 	SalesTotal	float64   `json:"salesTotal"`

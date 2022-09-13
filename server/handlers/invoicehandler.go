@@ -71,8 +71,6 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	description := client.Name + ": " + current 
 	invoice.Description = description
 
-
-
 	invoiceId, err := repository.CreateInvoice(&invoice) 
 	if err != nil {
 		response.NewErrorResponse(500, "error occurred creating invoice", w)

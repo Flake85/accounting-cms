@@ -48,7 +48,7 @@ func CreateLabor(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(422, "labor validation error", w)
 		return
 	}
-	labor.Client, err = repository.FindClientByID(labor.ClientID); if err != nil {
+	client, err := repository.FindClientByID(labor.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
@@ -73,6 +73,7 @@ func CreateLabor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	labor.ID = laborId
+	labor.Client = client
 	response.NewOkResponse(&labor, w)
 }
 
