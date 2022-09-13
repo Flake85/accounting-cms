@@ -32,14 +32,12 @@ func GetLaborsByInvoiceId(invoiceId uuid.UUID) ([]model.Labor, error) {
 	return labors, nil
 }
 
-// TODO: returns an empty array but the update is functional
-func UpdateLaborsByClientId(clientId uuid.UUID, invoiceId uuid.UUID) ([]model.Labor, error) {
-	labors := make([]model.Labor, 0)
+func UpdateLaborsByClientId(clientId uuid.UUID, invoiceId uuid.UUID) (model.Labor, error) {
 	labor := model.Labor{InvoiceID: &invoiceId}
-	if DB.Model(labor).Where("client_id = ? AND invoice_id IS NULL", clientId).Select("invoice_id").Updates(labor).Error != nil {
-		return labors, fmt.Errorf("could not update labors by client id: %w", DB.Error)
+	if DB.Model(&labor).Where("client_id = ? AND invoice_id IS NULL", clientId).Select("invoice_id").Updates(labor).Error != nil {
+		return labor, fmt.Errorf("could not update labors by client id: %w", DB.Error)
 	}
-	return labors, nil
+	return labor, nil
 }
 
 func CreateLabor(labor *model.Labor) (uuid.UUID, error) {

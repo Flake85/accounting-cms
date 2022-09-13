@@ -31,14 +31,12 @@ func GetSalesByInvoiceId(invoiceId uuid.UUID) ([]model.Sale, error) {
 	return sales, nil
 }
 
-// TODO: just returns an empty array for now but it does update the database
-func UpdateSalesByClientId(clientId uuid.UUID, invoiceId uuid.UUID) ([]model.Sale, error) {
-	sales := make([]model.Sale, 0)
+func UpdateSalesByClientId(clientId uuid.UUID, invoiceId uuid.UUID) (model.Sale, error) {
 	sale := model.Sale{InvoiceID: &invoiceId}
-	if DB.Model(sale).Where("client_id = ? AND invoice_id IS NULL", clientId).Select("invoice_id").Updates(sale).Error != nil {
-		return sales, fmt.Errorf("could not update sales by client id: %w", DB.Error)
+	if DB.Model(&sale).Where("client_id = ? AND invoice_id IS NULL", clientId).Select("invoice_id").Updates(sale).Error != nil {
+		return sale, fmt.Errorf("could not update sales by client id: %w", DB.Error)
 	}
-	return sales, nil
+	return sale, nil
 }
 
 func CreateSale(sale *model.Sale) (uuid.UUID, error) {
