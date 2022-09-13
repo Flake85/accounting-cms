@@ -7,8 +7,8 @@ Remove any project specific dependencies from global yarn, then make sure they g
 
 ---
 #### Subtasks:
-- [ ] check `yarn global list`
-- [ ] add depedencies to package.json
-- [ ] run project and make sure it works
+- [x] check `yarn global list`
+- [x] add depedencies to package.json
+- [x] run project and make sure it works
 
 ---
