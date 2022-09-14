@@ -52,22 +52,9 @@ func CreateLabor(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
-	if labor.InvoiceID != nil {
-		invoice, err := repository.FindInvoiceByID(*labor.InvoiceID); if err != nil {
-			response.NewErrorResponse(500, "error occured finding invoice", w)
-			return
-		}
-		if labor.ClientID != invoice.ClientID {
-			response.NewErrorResponse(500, "labor's client id must match invoice's client id", w)
-			return
-		}
-		invoice.Client = labor.Client
-		labor.Invoice = &invoice
-	}
-
 	total := labor.HoursWorked * labor.HourlyRate
 	labor.Total = math.Round(total * 100) / 100
-
+	
 	laborId, err := repository.CreateLabor(&labor); if err != nil {
 		response.NewErrorResponse(500, "error occurred creating labor", w)
 		return
@@ -100,28 +87,10 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 	}
 	labor.Description = laborValidated.Description
 	labor.ClientID = laborValidated.ClientID
-	labor.InvoiceID = laborValidated.InvoiceID
 	labor.HoursWorked = laborValidated.HoursWorked
 	labor.HourlyRate = laborValidated.HourlyRate
-
 	total := labor.HoursWorked * labor.HourlyRate
 	labor.Total = math.Round(total * 100) / 100
-
-	if labor.InvoiceID != nil {
-		invoice, err := repository.FindInvoiceByID(*labor.InvoiceID); if err != nil {
-			response.NewErrorResponse(500, "error occured finding invoice", w)
-			return
-		}
-		if invoice.IsPaid == true {
-			response.NewErrorResponse(400, "cannot update labor if invoice is already paid", w)
-		}
-		if labor.ClientID != invoice.ClientID {
-			response.NewErrorResponse(500, "labor's client id must match invoice's client id", w)
-			return
-		}
-		invoice.Client = labor.Client
-		labor.Invoice = &invoice
-	}
 
 	labor.Client, err = repository.FindClientByID(labor.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)

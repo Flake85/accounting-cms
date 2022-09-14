@@ -23,6 +23,12 @@ func GetAllSales() ([]model.Sale, error) {
 	return sales, nil
 }
 
+func GetNotInvoicedSalesCountByClientId(clientId uuid.UUID) int64 {
+	sales := make([]model.Sale, 0)
+	result := DB.Where("invoice_id IS NULL AND client_id = ?", clientId).Find(&sales)
+	return result.RowsAffected
+}
+
 func GetSalesByInvoiceId(invoiceId uuid.UUID) ([]model.Sale, error) {
 	sales := make([]model.Sale, 0)
 	if DB.Where("invoice_id = ?", invoiceId).Preload("Client").Find(&sales).Error != nil {

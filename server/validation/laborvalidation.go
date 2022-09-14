@@ -19,7 +19,6 @@ func LaborValidation(laborReq *request.LaborRequest) (labor model.Labor, err err
 	labor = model.Labor{
 		Description: laborReq.Description,
 		ClientID: laborReq.ClientId,
-		// InvoiceID: laborReq.InvoiceId,
 		HoursWorked: laborReq.HoursWorked,
 		HourlyRate: laborReq.HourlyRate,
 	}

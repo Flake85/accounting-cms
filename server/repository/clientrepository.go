@@ -12,7 +12,7 @@ var DB *gorm.DB
 
 func FindDeletedClients() ([]model.Client, error) {
 	clients := make([]model.Client, 0)
-	if DB.Unscoped().Find(&clients).Error != nil {
+	if DB.Unscoped().Where("deleted_at IS NOT NULL").Find(&clients).Error != nil {
 		return clients, fmt.Errorf("could not get clients from db: %w", DB.Error)
 	}
 	return clients, nil
