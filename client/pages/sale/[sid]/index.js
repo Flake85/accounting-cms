@@ -54,8 +54,8 @@ export default function Sale({ url, sale }) {
                         </div>
                     }
                     <p><strong>Units: </strong>{sale.data.units}</p>
-                    <p><strong>Unit Cost: </strong>{sale.data.unitCost}</p>
-                    <p><strong>Sale Total: </strong>{sale.data.total}</p>
+                    <p><strong>Unit Cost: </strong>${sale.data.unitCost.toFixed(2)}</p>
+                    <p><strong>Sale Total: </strong>${sale.data.total.toFixed(2)}</p>
                     { !sale.data.invoiceId &&
                         <div>
                             <Button href={`/sale/${sale.data.id}/update`} className="me-1">Update</Button>

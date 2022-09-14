@@ -54,7 +54,8 @@ func CreateLabor(labor *model.Labor) (uuid.UUID, error) {
 }
 
 func UpdateLabor(labor *model.Labor) error {
-	if DB.Save(labor).Error != nil {
+	
+	if DB.Model(&labor).Select("description", "client_id", "hours_worked", "hourly_rate", "total").Updates(labor).Error != nil {
 		return fmt.Errorf("cannot update labor: %w", DB.Error)
 	}
 	return nil

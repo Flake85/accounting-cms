@@ -92,7 +92,7 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 	total := labor.HoursWorked * labor.HourlyRate
 	labor.Total = math.Round(total * 100) / 100
 
-	labor.Client, err = repository.FindClientByID(labor.ClientID); if err != nil {
+	client, err := repository.FindClientByID(labor.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
@@ -100,6 +100,7 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(500, "error occurred updating labor", w)
 		return
 	}
+	labor.Client = client
 	response.NewOkResponse(&labor, w)
 }
 

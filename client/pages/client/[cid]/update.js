@@ -39,7 +39,7 @@ export default function UpdateClient({ client, url }) {
                 dispatch(openAlertModal())
                 throw new Error(data)
             }
-            router.push(`client/${data.data.id}`)
+            router.push(`/client/${data.data.id}`)
         } catch(err) { err => console.log(err) }
     }
 
@@ -76,8 +76,8 @@ export default function UpdateClient({ client, url }) {
 
 export async function getServerSideProps(context) {
     const id = context.query.cid
-    const res = await fetch(`${process.env.REACT_APP_BASEURL}/client/${id}`)
-    const client = await res.json()
     const url = process.env.REACT_APP_BASEURL
+    const res = await fetch(`${url}/client/${id}`)
+    const client = await res.json()
     return { props: { client, url } }
 }

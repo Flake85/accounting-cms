@@ -74,9 +74,9 @@ export default function Sales({ sales, url }) {
                                     ? <td><Link href={`/invoice/${sale.invoiceId}`}><a>{ sale.invoice.description }</a></Link></td>
                                     : <td></td>
                                 }
-                                <td>{ sale.units }</td>
-                                <td>{ sale.unitCost }</td>
-                                <td>{ sale.total }</td>
+                                <td>{ sale.units.toFixed(0) }</td>
+                                <td>${ sale.unitCost.toFixed(2) }</td>
+                                <td>${ sale.total.toFixed(2) }</td>
                                 { !sale.invoiceId
                                     ? 
                                     <td>
@@ -90,7 +90,7 @@ export default function Sales({ sales, url }) {
                         ))}
                     </tbody>
                 </Table>
-                : <div><hr /><p>Labors haven't been added yet.</p></div>
+                : <div><hr /><p>Sales haven't been added yet.</p></div>
             }
             <Button href="/sale/create">Add sale</Button>
         </div>

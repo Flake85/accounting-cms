@@ -31,8 +31,15 @@ func CreateInvoice(invoice *model.Invoice) (uuid.UUID, error) {
 }
 
 func UpdateInvoice(invoice *model.Invoice) error {
-	if DB.Save(invoice).Error != nil {
+	if DB.Model(&invoice).Select("is_paid").Updates(invoice).Error != nil {
 		return fmt.Errorf("cannot update invoice: %w", DB.Error)
+	}
+	return nil
+}
+
+func UpdateInvoiceTotals(invoice *model.Invoice) error {
+	if DB.Model(&invoice).Select("sales_total", "labors_total", "grand_total").Updates(invoice).Error != nil {
+		return fmt.Errorf("cannot update totals: %w", DB.Error)
 	}
 	return nil
 }

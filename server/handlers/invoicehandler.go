@@ -40,18 +40,10 @@ func GetInvoice(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(404, "sales not found", w)
 		return
 	}
-	for _, sale := range sales {
-		invoice.SalesTotal += sale.Total
-	}
 	labors, err := repository.GetLaborsByInvoiceId(invoiceId); if err != nil {
 		response.NewErrorResponse(404, "labors not found", w)
 		return
 	}
-	for _, labor := range labors {
-		invoice.LaborsTotal += labor.Total
-	}
-	invoice.LaborsTotal = math.Round(invoice.LaborsTotal * 100) / 100
-	invoice.GrandTotal = invoice.SalesTotal + invoice.LaborsTotal
 	invoice.Sales = &sales
 	invoice.Labors = &labors
 	response.NewOkResponse(&invoice, w)
@@ -98,12 +90,26 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(500, "error retrieveing sales by invoice id", w)
 		return
 	}
-	invoice.Sales = &sales
 	labors, err := repository.GetLaborsByInvoiceId(invoiceId); if err != nil {
 		response.NewErrorResponse(500, "error retrieving labors by invoice id", w)
 		return
 	}
+	invoice.Sales = &sales
 	invoice.Labors = &labors
+	for _, sale := range sales {
+		invoice.SalesTotal += sale.Total
+	}
+	for _, labor := range labors {
+		invoice.LaborsTotal += labor.Total
+	}
+	laborsTotal := math.Round(invoice.LaborsTotal * 100) / 100
+	grandTotal := invoice.SalesTotal + invoice.LaborsTotal
+	invoice.LaborsTotal = laborsTotal
+	invoice.GrandTotal = grandTotal
+	err = repository.UpdateInvoiceTotals(&invoice); if err != nil {
+		response.NewErrorResponse(500, "error saving invoice totals", w)
+		return
+	}
 	response.NewOkResponse(&invoice, w)
 }
 
@@ -125,7 +131,7 @@ func UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	invoice.IsPaid = req.IsPaid
-	invoice.Client, err = repository.FindClientByID(invoice.ClientID); if err != nil {
+	client, err := repository.FindClientByID(invoice.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
@@ -133,6 +139,7 @@ func UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(500, "error occurred updating expense", w)
 		return
 	}
+	invoice.Client = client
 	response.NewOkResponse(&invoice, w)
 }
 

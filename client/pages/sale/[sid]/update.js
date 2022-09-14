@@ -1,5 +1,6 @@
 import Form from "react-bootstrap/Form"
 import Button from "react-bootstrap/Button"
+import InputGroup from 'react-bootstrap/InputGroup'
 import { useState } from "react";
 import { useRouter } from "next/router"
 import { useDispatch } from 'react-redux'
@@ -72,21 +73,21 @@ export default function updatedSale({ sale, clients, url }) {
                     </Form.Select>
                 </Form.Group>
                 <Form.Group className="mb-3">
-                    <Form.Label>Hours Worked</Form.Label>
+                    <Form.Label>Number of Units</Form.Label>
                     <Form.Control type="number"
-                                step={0.01}  
-                                placeholder="Enter hours worked"
+                                placeholder="Enter amount of units sold"
                                 value={saleUnits}
                                 onChange={handleUnitsChange} />
                 </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Hourly Rate</Form.Label>
+                <Form.Label>Cost Per Unit</Form.Label>
+                <InputGroup className="mb-3">
+                    <InputGroup.Text>$</InputGroup.Text>
                     <Form.Control type="number"
                                 step={0.01}  
                                 placeholder="Enter hourly rate"
                                 value={saleUnitCost}
                                 onChange={handleUnitCostChange} />
-                </Form.Group>
+                </InputGroup>
                 <Button type="submit" className="me-1">Submit</Button>
                 <Button href={`/sale/${sale.data.id}`}>Cancel</Button>
             </Form>

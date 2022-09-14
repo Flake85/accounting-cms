@@ -89,17 +89,20 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 	sale.Description = saleValidated.Description
 	sale.Units = saleValidated.Units
 	sale.UnitCost = saleValidated.UnitCost
-	
-	total := sale.Units * sale.UnitCost
-	sale.Total = math.Round(total * 100) / 100
-	sale.Client, err = repository.FindClientByID(sale.ClientID); if err != nil {
+
+	client, err := repository.FindClientByID(sale.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
-	if err := repository.UpdateSale(&sale); err != nil {
-		response.NewErrorResponse(500, "error occurred updating sale", w)
-		return
-	}
+
+	total := sale.Units * sale.UnitCost
+	sale.Total = math.Round(total * 100) / 100
+	
+	// if err := repository.UpdateSale(&sale); err != nil {
+	// 	response.NewErrorResponse(500, "error occurred updating sale", w)
+	// 	return
+	// }
+	sale.Client = client
 	response.NewOkResponse(&sale, w)
 }
 
