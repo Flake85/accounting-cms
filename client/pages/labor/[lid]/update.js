@@ -1,5 +1,6 @@
 import React from 'react'
 import Form from "react-bootstrap/Form"
+import InputGroup from 'react-bootstrap/InputGroup'
 import Button from "react-bootstrap/Button"
 import { useState } from "react";
 import { useRouter } from "next/router"
@@ -77,14 +78,15 @@ export default function updatedLabor({ labor, clients, url }) {
                                 value={laborHoursWorked}
                                 onChange={handleHoursWorkedChange} />
                 </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Hourly Rate</Form.Label>
+                <Form.Label>Hourly Rate</Form.Label>
+                <InputGroup className="mb-3">
+                    <InputGroup.Text>$</InputGroup.Text>
                     <Form.Control type="number"
                                 step={0.01}  
                                 placeholder="Enter hourly rate"
                                 value={laborHourlyRate}
                                 onChange={handleHourlyRateChange} />
-                </Form.Group>
+                </InputGroup>
                 <Button variant="primary" type="submit">
                     Submit
                 </Button>

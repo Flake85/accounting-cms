@@ -43,7 +43,7 @@ export default function Expense({ url, expense }) {
             { expense.data
                 ? <div>
                     <p><strong>Description: </strong>{expense.data.description}</p>
-                    <p><strong>Cost: </strong>{expense.data.cost}</p>
+                    <p><strong>Cost: </strong>${expense.data.cost}</p>
                     <Button href={`/expense/${expense.data.id}/update`} className="me-1">Update Expense</Button>
                     <Button variant="danger" onClick={() => setShow(true)}>Delete</Button>
                 </div>

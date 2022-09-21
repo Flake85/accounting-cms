@@ -53,7 +53,7 @@ func CreateSale(sale *model.Sale) (uuid.UUID, error) {
 }
 
 func UpdateSale(sale *model.Sale) error {
-	if DB.Save(sale).Error != nil {
+	if DB.Model(&sale).Select("description", "client_id", "units", "unit_cost", "total").Updates(sale).Error != nil {
 		return fmt.Errorf("cannot update Sale: %w", DB.Error)
 	}
 	return nil

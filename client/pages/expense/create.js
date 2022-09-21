@@ -1,5 +1,6 @@
 import React from 'react'
 import Form from "react-bootstrap/Form"
+import InputGroup from 'react-bootstrap/InputGroup'
 import Button from "react-bootstrap/Button"
 import { useState } from "react";
 import { useRouter } from "next/router"
@@ -51,14 +52,15 @@ export default function NewExpense({ url }) {
                                 value={expenseDescription}
                                 onChange={handleDescriptionChange}/>
                 </Form.Group>
-                <Form.Group className="mb-3">
-                    <Form.Label>Cost</Form.Label>
+                <Form.Label>Cost</Form.Label>
+                <InputGroup className="mb-3">
+                    <InputGroup.Text>$</InputGroup.Text>
                     <Form.Control type="number"
                                 step={0.01}  
                                 placeholder="Enter cost"
                                 value={expenseCost}
                                 onChange={handleCostChange} />
-                </Form.Group>
+                </InputGroup>
                 <Button variant="primary" type="submit">
                     Submit
                 </Button>

@@ -54,9 +54,9 @@ export default function Labor({ url, labor }) {
                             <p><strong>Invoice Name: </strong><Link href={`/invoice/${labor.data.invoiceId}`}><a>{labor.data.invoice.description}</a></Link></p>
                         </div>
                     }
-                    <p><strong>Hourly Rate: </strong>{labor.data.hourlyRate}</p>
-                    <p><strong>Hours Worked: </strong>{labor.data.hoursWorked}</p>
-                    <p><strong>Labor Total: </strong>{labor.data.total}</p>
+                    <p><strong>Hourly Rate: </strong>${labor.data.hourlyRate.toFixed(2)}</p>
+                    <p><strong>Hours Worked: </strong>{labor.data.hoursWorked.toFixed(2)}</p>
+                    <p><strong>Labor Total: </strong>${labor.data.total.toFixed(2)}</p>
                     { !labor.data.invoiceId &&
                         <div>
                             <Button href={`/labor/${labor.data.id}/update`} className="me-1">Update</Button>

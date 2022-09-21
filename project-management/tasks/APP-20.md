@@ -7,10 +7,9 @@ Some things are not quite working on the frontend
 
 ---
 #### Subtasks:
-- [ ] Sales page says labor
-- [ ] Invoices page just has empty header
-- [ ] update actions are not working
-- [ ] better number formatting (at least one decimal for hours, dollar signs for money)
-- [ ] 
+- [x] Sales page says labor
+- [x] Invoices page just has empty header
+- [x] update actions are not working
+- [x] better number formatting (at least one decimal for hours, dollar signs for money)
 
 ---

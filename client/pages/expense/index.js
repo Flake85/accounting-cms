@@ -61,7 +61,7 @@ export default function Expenses({ expenses, url }) {
                             <tr key={expense.id}>
                                 <td>{ i + 1 }</td>
                                 <td><Link href={`/expense/${expense.id}`}><a>{ expense.description }</a></Link></td>
-                                <td>{ expense.cost }</td>
+                                <td>${ expense.cost }</td>
                                 <td>
                                     <Link href={`/expense/${expense.id}/update`}><a><i className="bi-pencil-square text-success"></i></a></Link>
                                     <Link href={`#`}><a onClick={() => confirmDelete(expense)}><i className="bi-trash text-danger"></i></a></Link>

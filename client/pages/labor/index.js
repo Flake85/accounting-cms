@@ -73,9 +73,9 @@ export default function Labors({ labors, url }) {
                                     ? <td><Link href={`/invoice/${labor.invoiceId}`}><a>{labor.invoice.description}</a></Link></td>
                                     : <td></td>
                                 }
-                                <td>{ labor.hoursWorked }</td>
-                                <td>{ labor.hourlyRate }</td>
-                                <td>{ labor.total }</td>
+                                <td>{ labor.hoursWorked.toFixed(2) }</td>
+                                <td>${ labor.hourlyRate.toFixed(2) }</td>
+                                <td>${ labor.total.toFixed(2) }</td>
                                 { !labor.invoiceId
                                     ? <td>
                                         <Link href={`/labor/${labor.id}/update`}><a><i className="bi-pencil-square text-success"></i></a></Link>

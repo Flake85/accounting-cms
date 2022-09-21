@@ -49,39 +49,42 @@ export default function Invoices({ invoices, url }) {
                 <Button className="me-1" onClick={deleteInvoice}>Confirm</Button>
                 <Button onClick={closeAlert}>Cancel</Button>
             </Alert>
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Invoice #</th>
-                        <th>Description</th>
-                        <th>Client</th>
-                        <th>Is Paid</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {invoices.data.map((invoice, i) => (
-                        <tr key={invoice.id}>
-                            <td>{ i + 1 }</td>
-                            <td><Link href={`/invoice/${invoice.id}`}><a>{ invoice.id }</a></Link></td>
-                            <td><Link href={`/invoice/${invoice.id}`}><a>{ invoice.description }</a></Link></td>
-                            { invoice.client.name
-                                ? <td><Link href={`/client/${invoice.clientId}`}><a>{ invoice.client.name }</a></Link></td>
-                                : <td><Link href={`/client/${invoice.clientId}/deleted`}><a className="text-danger">{ invoice.clientId } (inactive)</a></Link></td>
-                            }
-                            <td>{ invoice.isPaid.toString() }</td>
-                            { invoice.client.name
-                                ? <td>
-                                    <Link href={`/invoice/${invoice.id}/update`}><a><i className="bi-pencil-square text-success"></i></a></Link>
-                                    {!invoice.isPaid && <Link href={`#`}><a onClick={() => confirmDelete(invoice)}><i className="bi-trash text-danger"></i></a></Link>}
-                                </td>
-                                : <td></td>
-                            }
+            { invoices.data.length
+                ? <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Invoice #</th>
+                            <th>Description</th>
+                            <th>Client</th>
+                            <th>Is Paid</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {invoices.data.map((invoice, i) => (
+                            <tr key={invoice.id}>
+                                <td>{ i + 1 }</td>
+                                <td><Link href={`/invoice/${invoice.id}`}><a>{ invoice.id }</a></Link></td>
+                                <td><Link href={`/invoice/${invoice.id}`}><a>{ invoice.description }</a></Link></td>
+                                { invoice.client.name
+                                    ? <td><Link href={`/client/${invoice.clientId}`}><a>{ invoice.client.name }</a></Link></td>
+                                    : <td><Link href={`/client/${invoice.clientId}/deleted`}><a className="text-danger">{ invoice.clientId } (inactive)</a></Link></td>
+                                }
+                                <td>{ invoice.isPaid.toString() }</td>
+                                { invoice.client.name
+                                    ? <td>
+                                        <Link href={`/invoice/${invoice.id}/update`}><a><i className="bi-pencil-square text-success"></i></a></Link>
+                                        {!invoice.isPaid && <Link href={`#`}><a onClick={() => confirmDelete(invoice)}><i className="bi-trash text-danger"></i></a></Link>}
+                                    </td>
+                                    : <td></td>
+                                }
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+                : <div><hr /><p>Invoices haven't been added yet.</p></div>
+            }
             <Button href="/invoice/create" className="mb-5">Add Invoice</Button>
         </div>
     );
