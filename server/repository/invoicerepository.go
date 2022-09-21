@@ -7,46 +7,46 @@ import (
 	"github.com/google/uuid"
 )
 
-func FindInvoiceByID(invoiceId uuid.UUID) (model.Invoice, error) {
+func (repo *Repository) FindInvoiceByID(invoiceId uuid.UUID) (model.Invoice, error) {
 	invoice := model.Invoice{}
-	if DB.Where("id = ?", invoiceId).Preload("Client").Find(&invoice).Error != nil {
-		return invoice, fmt.Errorf("cannot find invoice by id: %w", DB.Error)
+	if repo.db.Where("id = ?", invoiceId).Preload("Client").Find(&invoice).Error != nil {
+		return invoice, fmt.Errorf("cannot find invoice by id: %w", repo.db.Error)
 	}
 	return invoice, nil
 }
 
-func GetAllInvoices() ([]model.Invoice, error) {
+func (repo *Repository) GetAllInvoices() ([]model.Invoice, error) {
 	invoices := make([]model.Invoice, 0)
-	if DB.Preload("Client").Find(&invoices).Error != nil {
-		return invoices, fmt.Errorf("could not get invoices from db: %w", DB.Error)
+	if repo.db.Preload("Client").Find(&invoices).Error != nil {
+		return invoices, fmt.Errorf("could not get invoices from repo.db: %w", repo.db.Error)
 	}
 	return invoices, nil
 }
 
-func CreateInvoice(invoice *model.Invoice) (uuid.UUID, error) {
-	if DB.Create(invoice).Error != nil {
-		return invoice.ID, fmt.Errorf("cannot create invoice: %w", DB.Error)
+func (repo *Repository) CreateInvoice(invoice *model.Invoice) (uuid.UUID, error) {
+	if repo.db.Create(invoice).Error != nil {
+		return invoice.ID, fmt.Errorf("cannot create invoice: %w", repo.db.Error)
 	}
 	return invoice.ID, nil
 }
 
-func UpdateInvoice(invoice *model.Invoice) error {
-	if DB.Model(&invoice).Select("is_paid").Updates(invoice).Error != nil {
-		return fmt.Errorf("cannot update invoice: %w", DB.Error)
+func (repo *Repository) UpdateInvoice(invoice *model.Invoice) error {
+	if repo.db.Model(&invoice).Select("is_paid").Updates(invoice).Error != nil {
+		return fmt.Errorf("cannot update invoice: %w", repo.db.Error)
 	}
 	return nil
 }
 
-func UpdateInvoiceTotals(invoice *model.Invoice) error {
-	if DB.Model(&invoice).Select("sales_total", "labors_total", "grand_total").Updates(invoice).Error != nil {
-		return fmt.Errorf("cannot update totals: %w", DB.Error)
+func (repo *Repository) UpdateInvoiceTotals(invoice *model.Invoice) error {
+	if repo.db.Model(&invoice).Select("sales_total", "labors_total", "grand_total").Updates(invoice).Error != nil {
+		return fmt.Errorf("cannot update totals: %w", repo.db.Error)
 	}
 	return nil
 }
 
-func DeleteInvoice(invoice *model.Invoice) error {
-	if DB.Delete(invoice).Error != nil {
-		return fmt.Errorf("cannot delete invoice: %w", DB.Error)
+func (repo *Repository) DeleteInvoice(invoice *model.Invoice) error {
+	if repo.db.Delete(invoice).Error != nil {
+		return fmt.Errorf("cannot delete invoice: %w", repo.db.Error)
 	}
 	return nil
 }

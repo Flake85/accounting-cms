@@ -7,61 +7,61 @@ import (
 	"github.com/google/uuid"
 )
 
-func FindSaleByID(saleId uuid.UUID) (model.Sale, error) {
+func (repo *Repository) FindSaleByID(saleId uuid.UUID) (model.Sale, error) {
 	sale := model.Sale{}
-	if DB.Where("id = ?", saleId).Preload("Client").Preload("Invoice").Preload("Invoice.Client").Find(&sale).Error != nil {
-		return sale, fmt.Errorf("Cannot find Sale by id: %w", DB.Error)
+	if repo.db.Where("id = ?", saleId).Preload("Client").Preload("Invoice").Preload("Invoice.Client").Find(&sale).Error != nil {
+		return sale, fmt.Errorf("Cannot find Sale by id: %w", repo.db.Error)
 	}
 	return sale, nil
 }
 
-func GetAllSales() ([]model.Sale, error) {
+func (repo *Repository) GetAllSales() ([]model.Sale, error) {
 	sales := make([]model.Sale, 0)
-	if DB.Preload("Client").Preload("Invoice").Preload("Invoice.Client").Find(&sales).Error != nil {
-		return sales, fmt.Errorf("could not get Sales from db: %w", DB.Error)
+	if repo.db.Preload("Client").Preload("Invoice").Preload("Invoice.Client").Find(&sales).Error != nil {
+		return sales, fmt.Errorf("could not get Sales from repo.db: %w", repo.db.Error)
 	}
 	return sales, nil
 }
 
-func GetNotInvoicedSalesCountByClientId(clientId uuid.UUID) int64 {
+func (repo *Repository) GetNotInvoicedSalesCountByClientId(clientId uuid.UUID) int64 {
 	sales := make([]model.Sale, 0)
-	result := DB.Where("invoice_id IS NULL AND client_id = ?", clientId).Find(&sales)
+	result := repo.db.Where("invoice_id IS NULL AND client_id = ?", clientId).Find(&sales)
 	return result.RowsAffected
 }
 
-func GetSalesByInvoiceId(invoiceId uuid.UUID) ([]model.Sale, error) {
+func (repo *Repository) GetSalesByInvoiceId(invoiceId uuid.UUID) ([]model.Sale, error) {
 	sales := make([]model.Sale, 0)
-	if DB.Where("invoice_id = ?", invoiceId).Preload("Client").Find(&sales).Error != nil {
-		return sales, fmt.Errorf("could not retrieve sales from db: %w", DB.Error)
+	if repo.db.Where("invoice_id = ?", invoiceId).Preload("Client").Find(&sales).Error != nil {
+		return sales, fmt.Errorf("could not retrieve sales from repo.db: %w", repo.db.Error)
 	}
 	return sales, nil
 }
 
-func UpdateSalesByClientId(clientId uuid.UUID, invoiceId uuid.UUID) (model.Sale, error) {
+func (repo *Repository) UpdateSalesByClientId(clientId uuid.UUID, invoiceId uuid.UUID) (model.Sale, error) {
 	sale := model.Sale{InvoiceID: &invoiceId}
-	if DB.Model(&sale).Where("client_id = ? AND invoice_id IS NULL", clientId).Select("invoice_id").Updates(sale).Error != nil {
-		return sale, fmt.Errorf("could not update sales by client id: %w", DB.Error)
+	if repo.db.Model(&sale).Where("client_id = ? AND invoice_id IS NULL", clientId).Select("invoice_id").Updates(sale).Error != nil {
+		return sale, fmt.Errorf("could not update sales by client id: %w", repo.db.Error)
 	}
 	return sale, nil
 }
 
-func CreateSale(sale *model.Sale) (uuid.UUID, error) {
-	if DB.Create(sale).Error != nil {
-		return sale.ID, fmt.Errorf("cannot create Sale: %w", DB.Error)
+func (repo *Repository) CreateSale(sale *model.Sale) (uuid.UUID, error) {
+	if repo.db.Create(sale).Error != nil {
+		return sale.ID, fmt.Errorf("cannot create Sale: %w", repo.db.Error)
 	}
 	return sale.ID, nil
 }
 
-func UpdateSale(sale *model.Sale) error {
-	if DB.Model(&sale).Select("description", "client_id", "units", "unit_cost", "total").Updates(sale).Error != nil {
-		return fmt.Errorf("cannot update Sale: %w", DB.Error)
+func (repo *Repository) UpdateSale(sale *model.Sale) error {
+	if repo.db.Model(&sale).Select("description", "client_id", "units", "unit_cost", "total").Updates(sale).Error != nil {
+		return fmt.Errorf("cannot update Sale: %w", repo.db.Error)
 	}
 	return nil
 }
 
-func DeleteSale(sale *model.Sale) error {
-	if DB.Delete(sale).Error != nil {
-		return fmt.Errorf("cannot delete Sale: %w", DB.Error)
+func (repo *Repository) DeleteSale(sale *model.Sale) error {
+	if repo.db.Delete(sale).Error != nil {
+		return fmt.Errorf("cannot delete Sale: %w", repo.db.Error)
 	}
 	return nil
 }

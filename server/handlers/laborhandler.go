@@ -5,7 +5,6 @@ import (
 	"math"
 	"net/http"
 	"server/model"
-	"server/repository"
 	"server/request"
 	"server/response"
 	"server/validation"
@@ -14,8 +13,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func GetLabors(w http.ResponseWriter, r *http.Request) {
-	labors, err := repository.GetAllLabors()
+func (handler *Handler) GetLabors(w http.ResponseWriter, r *http.Request) {
+	labors, err := handler.repository.GetAllLabors()
 	if err != nil {
 		response.NewErrorResponse(500, "error occurred retrieving labors", w)
 		return
@@ -23,14 +22,14 @@ func GetLabors(w http.ResponseWriter, r *http.Request) {
 	response.NewOkResponse(&labors, w)
 }
 
-func GetLabor(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) GetLabor(w http.ResponseWriter, r *http.Request) {
 	laborIdParam := mux.Vars(r)["id"]
 	laborId, err := uuid.Parse(laborIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
-	labor, err := repository.FindLaborByID(laborId)
+	labor, err := handler.repository.FindLaborByID(laborId)
 	if err != nil {
 		response.NewErrorResponse(404, "labor not found", w)
 		return
@@ -38,7 +37,7 @@ func GetLabor(w http.ResponseWriter, r *http.Request) {
 	response.NewOkResponse(&labor, w)
 }
 
-func CreateLabor(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) CreateLabor(w http.ResponseWriter, r *http.Request) {
 	var laborReq request.LaborRequest
 	if err := json.NewDecoder(r.Body).Decode(&laborReq); err != nil {
 		response.NewErrorResponse(400, "labor decode malfunction", w)
@@ -48,14 +47,14 @@ func CreateLabor(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(422, "labor validation error", w)
 		return
 	}
-	client, err := repository.FindClientByID(labor.ClientID); if err != nil {
+	client, err := handler.repository.FindClientByID(labor.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
 	total := labor.HoursWorked * labor.HourlyRate
 	labor.Total = math.Round(total * 100) / 100
 	
-	laborId, err := repository.CreateLabor(&labor); if err != nil {
+	laborId, err := handler.repository.CreateLabor(&labor); if err != nil {
 		response.NewErrorResponse(500, "error occurred creating labor", w)
 		return
 	}
@@ -64,14 +63,14 @@ func CreateLabor(w http.ResponseWriter, r *http.Request) {
 	response.NewOkResponse(&labor, w)
 }
 
-func UpdateLabor(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) UpdateLabor(w http.ResponseWriter, r *http.Request) {
 	laborIdParam := mux.Vars(r)["id"]
 	laborId, err := uuid.Parse(laborIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
-	labor, err := repository.FindLaborByID(laborId)
+	labor, err := handler.repository.FindLaborByID(laborId)
 	if err != nil {
 		response.NewErrorResponse(404, "labor not found", w)
 		return
@@ -92,11 +91,11 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 	total := labor.HoursWorked * labor.HourlyRate
 	labor.Total = math.Round(total * 100) / 100
 
-	client, err := repository.FindClientByID(labor.ClientID); if err != nil {
+	client, err := handler.repository.FindClientByID(labor.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
-	if err := repository.UpdateLabor(&labor); err != nil {
+	if err := handler.repository.UpdateLabor(&labor); err != nil {
 		response.NewErrorResponse(500, "error occurred updating labor", w)
 		return
 	}
@@ -104,14 +103,14 @@ func UpdateLabor(w http.ResponseWriter, r *http.Request) {
 	response.NewOkResponse(&labor, w)
 }
 
-func DeleteLabor(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) DeleteLabor(w http.ResponseWriter, r *http.Request) {
 	laborIdParam := mux.Vars(r)["id"]
 	laborId, err := uuid.Parse(laborIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
-	labor, err := repository.FindLaborByID(laborId)
+	labor, err := handler.repository.FindLaborByID(laborId)
 	if err != nil {
 		response.NewErrorResponse(404, "labor not found", w)
 		return
@@ -122,7 +121,7 @@ func DeleteLabor(w http.ResponseWriter, r *http.Request) {
 	}
 	query := model.Labor{}
 	query.ID = laborId
-	err = repository.DeleteLabor(&query); if err != nil {
+	err = handler.repository.DeleteLabor(&query); if err != nil {
 		response.NewErrorResponse(500, "invalid uuid", w)
 		return
 	}

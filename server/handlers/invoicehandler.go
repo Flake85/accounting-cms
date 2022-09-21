@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"math"
 	"net/http"
-	"server/repository"
 	"server/response"
 	"time"
 
@@ -14,8 +13,8 @@ import (
 	"server/model"
 )
 
-func GetInvoices(w http.ResponseWriter, r *http.Request) {
-	invoices, err := repository.GetAllInvoices()
+func (handler *Handler) GetInvoices(w http.ResponseWriter, r *http.Request) {
+	invoices, err := handler.repository.GetAllInvoices()
 	if err != nil {
 		response.NewErrorResponse(500, "error occurred retrieving invoices", w)
 		return
@@ -23,24 +22,24 @@ func GetInvoices(w http.ResponseWriter, r *http.Request) {
 	response.NewOkResponse(&invoices, w)
 }
 
-func GetInvoice(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) GetInvoice(w http.ResponseWriter, r *http.Request) {
 	invoiceIdParam := mux.Vars(r)["id"]
 	invoiceId, err := uuid.Parse(invoiceIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
-	invoice, err := repository.FindInvoiceByID(invoiceId)
+	invoice, err := handler.repository.FindInvoiceByID(invoiceId)
 	if err != nil {
 		response.NewErrorResponse(404, "invoice not found", w)
 		return
 	}
-	sales, err := repository.GetSalesByInvoiceId(invoiceId)
+	sales, err := handler.repository.GetSalesByInvoiceId(invoiceId)
 	if err != nil {
 		response.NewErrorResponse(404, "sales not found", w)
 		return
 	}
-	labors, err := repository.GetLaborsByInvoiceId(invoiceId); if err != nil {
+	labors, err := handler.repository.GetLaborsByInvoiceId(invoiceId); if err != nil {
 		response.NewErrorResponse(404, "labors not found", w)
 		return
 	}
@@ -49,19 +48,19 @@ func GetInvoice(w http.ResponseWriter, r *http.Request) {
 	response.NewOkResponse(&invoice, w)
 }
 
-func CreateInvoice(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	var invoice model.Invoice
 	if err := json.NewDecoder(r.Body).Decode(&invoice); err != nil {
 		response.NewErrorResponse(400, "invoice decode malfunction", w)
 		return
 	}
-	client, err := repository.FindClientByID(invoice.ClientID); if err != nil {
+	client, err := handler.repository.FindClientByID(invoice.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
 
-	laborCount := repository.GetNotInvoicedLaborsCountByClientId(invoice.ClientID)
-	salesCount := repository.GetNotInvoicedSalesCountByClientId(invoice.ClientID)
+	laborCount := handler.repository.GetNotInvoicedLaborsCountByClientId(invoice.ClientID)
+	salesCount := handler.repository.GetNotInvoicedSalesCountByClientId(invoice.ClientID)
 	if laborCount < 1 && salesCount < 1{
 		response.NewErrorResponse(400, "cannot create empty invoice. add sale or labor first.", w)
 		return
@@ -71,26 +70,26 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	description := client.Name + ": " + current 
 	invoice.Description = description
 
-	invoiceId, err := repository.CreateInvoice(&invoice) 
+	invoiceId, err := handler.repository.CreateInvoice(&invoice) 
 	if err != nil {
 		response.NewErrorResponse(500, "error occurred creating invoice", w)
 		return
 	}
 	invoice.ID = invoiceId
 	invoice.Client = client
-	_, err = repository.UpdateSalesByClientId(invoice.ClientID, invoiceId); if err != nil {
+	_, err = handler.repository.UpdateSalesByClientId(invoice.ClientID, invoiceId); if err != nil {
 		response.NewErrorResponse(500, "error updating invoice sales with client id", w)
 		return
 	}
-	_, err = repository.UpdateLaborsByClientId(invoice.ClientID, invoiceId); if err != nil {
+	_, err = handler.repository.UpdateLaborsByClientId(invoice.ClientID, invoiceId); if err != nil {
 		response.NewErrorResponse(500, "error updating invoice labors with client id", w)
 		return
 	}
-	sales, err := repository.GetSalesByInvoiceId(invoiceId); if err != nil {
+	sales, err := handler.repository.GetSalesByInvoiceId(invoiceId); if err != nil {
 		response.NewErrorResponse(500, "error retrieveing sales by invoice id", w)
 		return
 	}
-	labors, err := repository.GetLaborsByInvoiceId(invoiceId); if err != nil {
+	labors, err := handler.repository.GetLaborsByInvoiceId(invoiceId); if err != nil {
 		response.NewErrorResponse(500, "error retrieving labors by invoice id", w)
 		return
 	}
@@ -106,21 +105,21 @@ func CreateInvoice(w http.ResponseWriter, r *http.Request) {
 	grandTotal := invoice.SalesTotal + invoice.LaborsTotal
 	invoice.LaborsTotal = laborsTotal
 	invoice.GrandTotal = grandTotal
-	err = repository.UpdateInvoiceTotals(&invoice); if err != nil {
+	err = handler.repository.UpdateInvoiceTotals(&invoice); if err != nil {
 		response.NewErrorResponse(500, "error saving invoice totals", w)
 		return
 	}
 	response.NewOkResponse(&invoice, w)
 }
 
-func UpdateInvoice(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 	invoiceIdParam := mux.Vars(r)["id"]
 	invoiceId, err := uuid.Parse(invoiceIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "error occurred creating invoice", w)
 		return
 	}
-	invoice, err := repository.FindInvoiceByID(invoiceId)
+	invoice, err := handler.repository.FindInvoiceByID(invoiceId)
 	if err != nil {
 		response.NewErrorResponse(404, "invoice not found", w)
 		return
@@ -131,11 +130,11 @@ func UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	invoice.IsPaid = req.IsPaid
-	client, err := repository.FindClientByID(invoice.ClientID); if err != nil {
+	client, err := handler.repository.FindClientByID(invoice.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
-	if err := repository.UpdateInvoice(&invoice); err != nil {
+	if err := handler.repository.UpdateInvoice(&invoice); err != nil {
 		response.NewErrorResponse(500, "error occurred updating expense", w)
 		return
 	}
@@ -143,21 +142,21 @@ func UpdateInvoice(w http.ResponseWriter, r *http.Request) {
 	response.NewOkResponse(&invoice, w)
 }
 
-func DeleteInvoice(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) DeleteInvoice(w http.ResponseWriter, r *http.Request) {
 	invoiceIdParam := mux.Vars(r)["id"]
 	invoiceId, err := uuid.Parse(invoiceIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
-	_, err = repository.FindInvoiceByID(invoiceId)
+	_, err = handler.repository.FindInvoiceByID(invoiceId)
 	if err != nil {
 		response.NewErrorResponse(404, "invoice not found", w)
 		return
 	}
 	query := model.Invoice{}
 	query.ID = invoiceId
-	err = repository.DeleteInvoice(&query); if err != nil {
+	err = handler.repository.DeleteInvoice(&query); if err != nil {
 		response.NewErrorResponse(500, "invalid uuid", w)
 		return
 	}
