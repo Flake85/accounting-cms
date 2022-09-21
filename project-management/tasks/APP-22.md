@@ -7,8 +7,8 @@ Clean up loose flags and parsing into a single Config struct that can be passed 
 
 ---
 #### Subtasks:
-- [ ] Rename `flags` to `config`
-- [ ] make Configuration struct with all config fields
-- [ ] do all flag parsing in `config.Parse()` and return Configuration struct
+- [x] Rename `flags` to `config`
+- [x] make Configuration struct with all config fields
+- [x] do all flag parsing in `config.Parse()` and return Configuration struct
 
 ---

@@ -1,30 +1,27 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
 
-	"gorm.io/gorm"
-	"gorm.io/driver/postgres"
-
+	"server/config"
 	"server/db"
-	"server/flags"
-	"server/model"
+	"server/handlers"
 	"server/repository"
 	"server/router"
 )
 
 func main() {
-	flag.Parse()
-	db, err := gorm.Open(postgres.Open(db.BuildDbConnectionStr(*flags.Host, *flags.Port, *flags.User, *flags.Password, *flags.DbName)))
-	if err != nil {
+	cfg := config.Parse()
+	database, err := db.NewDB(cfg); if err != nil {
 		fmt.Printf("db connection error: %v", err)
 	}
-	repository.DB = db
-	db.AutoMigrate(&model.Client{}, &model.Expense{}, &model.Invoice{}, &model.Labor{}, &model.Sale{})
-	r := router.NewRouter()
+	db.Migrate(database)
+	repo := repository.NewRepository(database)
+	handler := handlers.NewHandler(&repo)
+	
+	r := router.NewRouter(&handler)
 	log.Println("server started...")
 	log.Fatal(http.ListenAndServe(":8080", r))
 }

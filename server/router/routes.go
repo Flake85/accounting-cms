@@ -1,15 +1,25 @@
 package router
 
 import (
-	"server/model"
+	"net/http"
+	"server/handlers"
 )
 
-type Routes []model.Route
+type Route struct {
+	Name string
+	Method string
+	Pattern string
+	HandlerFunc http.HandlerFunc
+}
 
-var routes = []Routes{ 
-	clientRoutes,
-	invoiceRoutes,
-	expenseRoutes,
-	laborRoutes,
-	salesRoutes,
+type Routes []Route
+
+func routes(h *handlers.Handler) []Routes { 
+	return []Routes{ 
+		clientRoutes(h),
+		invoiceRoutes(h),
+		expenseRoutes(h),
+		laborRoutes(h),
+		salesRoutes(h),
+	}
 }

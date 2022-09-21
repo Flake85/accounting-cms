@@ -5,7 +5,6 @@ import (
 	"math"
 	"net/http"
 	"server/model"
-	"server/repository"
 	"server/request"
 	"server/response"
 	"server/validation"
@@ -14,8 +13,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func GetSales(w http.ResponseWriter, r *http.Request) {
-	sales, err := repository.GetAllSales()
+func (handler *Handler) GetSales(w http.ResponseWriter, r *http.Request) {
+	sales, err := handler.repository.GetAllSales()
 	if err != nil {
 		response.NewErrorResponse(500, "error occurred retrieveing sales", w)
 		return
@@ -23,14 +22,14 @@ func GetSales(w http.ResponseWriter, r *http.Request) {
 	response.NewOkResponse(&sales, w)
 }
 
-func GetSale(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) GetSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
-	sale, err := repository.FindSaleByID(saleId)
+	sale, err := handler.repository.FindSaleByID(saleId)
 	if err != nil {
 		response.NewErrorResponse(404, "sale not found", w)
 		return
@@ -38,7 +37,7 @@ func GetSale(w http.ResponseWriter, r *http.Request) {
 	response.NewOkResponse(&sale, w)
 }
 
-func CreateSale(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) CreateSale(w http.ResponseWriter, r *http.Request) {
 	var saleReq request.SaleRequest
 	if err := json.NewDecoder(r.Body).Decode(&saleReq); err != nil {
 		response.NewErrorResponse(400, "sale decode malfunction", w)
@@ -48,14 +47,14 @@ func CreateSale(w http.ResponseWriter, r *http.Request) {
 		response.NewErrorResponse(422, "sale validation error", w)
 		return
 	}
-	client, err := repository.FindClientByID(sale.ClientID); if err != nil {
+	client, err := handler.repository.FindClientByID(sale.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
 	total := sale.Units * sale.UnitCost
 	sale.Total = math.Round(total * 100) / 100
 
-	saleId, err := repository.CreateSale(&sale); if err != nil {
+	saleId, err := handler.repository.CreateSale(&sale); if err != nil {
 		response.NewErrorResponse(500, "error occurred creating sale", w)
 		return
 	}
@@ -64,14 +63,14 @@ func CreateSale(w http.ResponseWriter, r *http.Request) {
 	response.NewOkResponse(&sale, w)
 }
 
-func UpdateSale(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) UpdateSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
-	sale, err := repository.FindSaleByID(saleId)
+	sale, err := handler.repository.FindSaleByID(saleId)
 	if err != nil {
 		response.NewErrorResponse(404, "sale not found", w)
 		return
@@ -90,7 +89,7 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 	sale.Units = saleValidated.Units
 	sale.UnitCost = saleValidated.UnitCost
 
-	client, err := repository.FindClientByID(sale.ClientID); if err != nil {
+	client, err := handler.repository.FindClientByID(sale.ClientID); if err != nil {
 		response.NewErrorResponse(500, "error occured finding client", w)
 		return
 	}
@@ -98,22 +97,22 @@ func UpdateSale(w http.ResponseWriter, r *http.Request) {
 	total := sale.Units * sale.UnitCost
 	sale.Total = math.Round(total * 100) / 100
 	
-	// if err := repository.UpdateSale(&sale); err != nil {
-	// 	response.NewErrorResponse(500, "error occurred updating sale", w)
-	// 	return
-	// }
+	if err := handler.repository.UpdateSale(&sale); err != nil {
+		response.NewErrorResponse(500, "error occurred updating sale", w)
+		return
+	}
 	sale.Client = client
 	response.NewOkResponse(&sale, w)
 }
 
-func DeleteSale(w http.ResponseWriter, r *http.Request) {
+func (handler *Handler) DeleteSale(w http.ResponseWriter, r *http.Request) {
 	saleIdParam := mux.Vars(r)["id"]
 	saleId, err := uuid.Parse(saleIdParam)
 	if err != nil {
 		response.NewErrorResponse(400, "invalid uuid", w)
 		return
 	}
-	sale, err := repository.FindSaleByID(saleId) 
+	sale, err := handler.repository.FindSaleByID(saleId) 
 	if err != nil {
 		response.NewErrorResponse(404, "sale not found", w)
 		return
@@ -124,7 +123,7 @@ func DeleteSale(w http.ResponseWriter, r *http.Request) {
 	}
 	query := model.Sale{}
 	query.ID = saleId
-	err = repository.DeleteSale(&query); if err != nil {
+	err = handler.repository.DeleteSale(&query); if err != nil {
 		response.NewErrorResponse(500, "something went wrong", w)
 		return
 	}
