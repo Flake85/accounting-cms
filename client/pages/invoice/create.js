@@ -26,7 +26,7 @@ export default function NewInvoice({ url, clients }) {
             if(!res.ok) {
                 dispatch(setAlertData({
                     title: 'Something went wrong',
-                    body: 'Error: ' + data
+                    body: 'Error: ' + data.error.message
                 }))
                 dispatch(openAlertModal())
                 throw new Error(data)
